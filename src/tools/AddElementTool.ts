@@ -28,8 +28,9 @@ export class AddElementTool extends BaseTool {
     y = y - defaults.height / 2;
 
     if (this.ctx.snapToGrid) {
-      x = snapToGrid(x, this.ctx.gridSize);
-      y = snapToGrid(y, this.ctx.gridSize);
+      const effectiveGrid = this.getEffectiveGridSize();
+      x = snapToGrid(x, effectiveGrid);
+      y = snapToGrid(y, effectiveGrid);
     }
 
     const data: any = {
@@ -62,8 +63,9 @@ export class AddElementTool extends BaseTool {
     y = y - defaults.height / 2;
 
     if (this.ctx.snapToGrid) {
-      x = snapToGrid(x, this.ctx.gridSize);
-      y = snapToGrid(y, this.ctx.gridSize);
+      const effectiveGrid = this.getEffectiveGridSize();
+      x = snapToGrid(x, effectiveGrid);
+      y = snapToGrid(y, effectiveGrid);
     }
 
     // Store the center for preview rendering

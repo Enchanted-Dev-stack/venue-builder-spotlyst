@@ -136,10 +136,11 @@ export class SelectTool extends BaseTool {
       }
 
       if (this.ctx.snapToGrid) {
-        newX = snapToGrid(newX, this.ctx.gridSize);
-        newY = snapToGrid(newY, this.ctx.gridSize);
-        newW = snapToGrid(newW, this.ctx.gridSize);
-        newH = snapToGrid(newH, this.ctx.gridSize);
+        const effectiveGrid = this.getEffectiveGridSize();
+        newX = snapToGrid(newX, effectiveGrid);
+        newY = snapToGrid(newY, effectiveGrid);
+        newW = snapToGrid(newW, effectiveGrid);
+        newH = snapToGrid(newH, effectiveGrid);
       }
 
       newW = Math.max(ELEMENT_MIN_SIZE, newW);
@@ -156,14 +157,15 @@ export class SelectTool extends BaseTool {
       const dy = worldPos.y - this.dragStartWorld.y;
 
       // Use original positions + total delta to avoid snap drift
+      const effectiveGrid = this.ctx.snapToGrid ? this.getEffectiveGridSize() : 0;
       for (const [id, origPos] of this.dragOriginalPositions) {
         const el = elementManager.get(id);
         if (el) {
           let newX = origPos.x + dx;
           let newY = origPos.y + dy;
-          if (this.ctx.snapToGrid) {
-            newX = snapToGrid(newX, this.ctx.gridSize);
-            newY = snapToGrid(newY, this.ctx.gridSize);
+          if (effectiveGrid > 0) {
+            newX = snapToGrid(newX, effectiveGrid);
+            newY = snapToGrid(newY, effectiveGrid);
           }
           el.moveTo(newX, newY);
         }

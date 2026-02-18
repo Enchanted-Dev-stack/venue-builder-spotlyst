@@ -16,8 +16,9 @@ export class WallTool extends BaseTool {
     let y = worldPos.y;
 
     if (this.ctx.snapToGrid) {
-      x = snapToGrid(x, this.ctx.gridSize);
-      y = snapToGrid(y, this.ctx.gridSize);
+      const effectiveGrid = this.getEffectiveGridSize();
+      x = snapToGrid(x, effectiveGrid);
+      y = snapToGrid(y, effectiveGrid);
     }
 
     // Double-click finishes the wall
@@ -34,8 +35,9 @@ export class WallTool extends BaseTool {
     let y = worldPos.y;
 
     if (this.ctx.snapToGrid) {
-      x = snapToGrid(x, this.ctx.gridSize);
-      y = snapToGrid(y, this.ctx.gridSize);
+      const effectiveGrid = this.getEffectiveGridSize();
+      x = snapToGrid(x, effectiveGrid);
+      y = snapToGrid(y, effectiveGrid);
     }
 
     this.previewPoint = { x, y };

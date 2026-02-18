@@ -3,6 +3,7 @@ import { ElementManager } from '../core/ElementManager';
 import { SelectionManager } from '../core/SelectionManager';
 import { GroupManager } from '../core/GroupManager';
 import { Point } from '../core/types';
+import { getEffectiveSnapSize } from '../utils/math';
 
 export interface ToolContext {
   camera: Camera;
@@ -38,4 +39,8 @@ export abstract class BaseTool {
 
   /** Called when tool is deactivated. */
   deactivate(): void {}
+
+  protected getEffectiveGridSize(): number {
+    return getEffectiveSnapSize(this.ctx.gridSize, this.ctx.camera.zoom);
+  }
 }
