@@ -1,4 +1,4 @@
-export const DEFAULT_GRID_SIZE = 20;
+export const DEFAULT_GRID_SIZE = 10;
 export const DEFAULT_CANVAS_WIDTH = 1200;
 export const DEFAULT_CANVAS_HEIGHT = 800;
 export const MIN_ZOOM = 0.25;

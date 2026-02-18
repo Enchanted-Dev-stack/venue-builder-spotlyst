@@ -857,7 +857,7 @@
     builder = new VenueBuilder.VenueBuilder(canvasContainer, {
       width: 1200,
       height: 800,
-      gridSize: 20,
+      gridSize: 10,
       snapToGrid: true,
       showGrid: true,
     });
@@ -875,19 +875,19 @@
   builder.addElement({ type: 'table', x: 200, y: 320, width: 120, height: 80, metadata: { shape: 'rectangle', tableNumber: 5, capacity: 8, status: 'available' } });
   builder.addElement({ type: 'table', x: 500, y: 340, width: 90, height: 90, metadata: { shape: 'round', tableNumber: 6, capacity: 6, status: 'available' } });
 
-  // Chairs
-  builder.addElement({ type: 'chair', x: 140, y: 210, width: 30, height: 30, metadata: {} });
-  builder.addElement({ type: 'chair', x: 180, y: 210, width: 30, height: 30, metadata: {} });
-  builder.addElement({ type: 'chair', x: 140, y: 80, width: 30, height: 30, metadata: {} });
+  // Chairs — positioned to align with Table 1 (x:120, y:120, w:100, h:70)
+  builder.addElement({ type: 'chair', x: 130, y: 200, width: 30, height: 30, metadata: {} });
+  builder.addElement({ type: 'chair', x: 180, y: 200, width: 30, height: 30, metadata: {} });
+  builder.addElement({ type: 'chair', x: 130, y: 80, width: 30, height: 30, metadata: {} });
   builder.addElement({ type: 'chair', x: 180, y: 80, width: 30, height: 30, metadata: {} });
 
-  // Wall
-  builder.addElement({ type: 'wall', x: 50, y: 50, width: 700, height: 6, metadata: { points: [{ x: 50, y: 53 }, { x: 750, y: 53 }], thickness: 6 } });
-  builder.addElement({ type: 'wall', x: 50, y: 50, width: 6, height: 420, metadata: { points: [{ x: 53, y: 50 }, { x: 53, y: 470 }], thickness: 6 } });
+  // Walls
+  builder.addElement({ type: 'wall', x: 50, y: 50, width: 700, height: 6, metadata: { points: [{ x: 50, y: 50 }, { x: 750, y: 50 }], thickness: 6 } });
+  builder.addElement({ type: 'wall', x: 50, y: 50, width: 6, height: 420, metadata: { points: [{ x: 50, y: 50 }, { x: 50, y: 470 }], thickness: 6 } });
 
-  // Door & Window
-  builder.addElement({ type: 'door', x: 300, y: 48, width: 50, height: 12, metadata: {} });
-  builder.addElement({ type: 'window', x: 550, y: 48, width: 80, height: 12, metadata: {} });
+  // Door & Window — positioned on the wall (y: 40 to sit on the top wall)
+  builder.addElement({ type: 'door', x: 300, y: 40, width: 50, height: 10, metadata: {} });
+  builder.addElement({ type: 'window', x: 550, y: 40, width: 80, height: 10, metadata: {} });
 
   // ── Tool name map ──────────────────────────────────────────────────────
   const toolNames = {

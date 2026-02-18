@@ -2,6 +2,7 @@ import { BaseTool, ToolContext } from './BaseTool';
 import { Point } from '../core/types';
 import { ResizeHandle } from '../core/SelectionManager';
 import { snapToGrid } from '../utils/math';
+import { ELEMENT_MIN_SIZE } from '../utils/constants';
 
 export class SelectTool extends BaseTool {
   private isDragging: boolean = false;
@@ -141,8 +142,8 @@ export class SelectTool extends BaseTool {
         newH = snapToGrid(newH, this.ctx.gridSize);
       }
 
-      newW = Math.max(10, newW);
-      newH = Math.max(10, newH);
+      newW = Math.max(ELEMENT_MIN_SIZE, newW);
+      newH = Math.max(ELEMENT_MIN_SIZE, newH);
 
       el.moveTo(newX, newY);
       el.resize(newW, newH);

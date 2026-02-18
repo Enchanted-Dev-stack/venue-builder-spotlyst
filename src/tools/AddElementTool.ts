@@ -21,18 +21,21 @@ export class AddElementTool extends BaseTool {
     let x = worldPos.x;
     let y = worldPos.y;
 
+    const defaults = this.getDefaults();
+
+    // Center on click position, then snap the final top-left to grid
+    x = x - defaults.width / 2;
+    y = y - defaults.height / 2;
+
     if (this.ctx.snapToGrid) {
       x = snapToGrid(x, this.ctx.gridSize);
       y = snapToGrid(y, this.ctx.gridSize);
     }
 
-    const defaults = this.getDefaults();
-
-    // Center the element on the click position
     const data: any = {
       type: this.elementType,
-      x: x - defaults.width / 2,
-      y: y - defaults.height / 2,
+      x,
+      y,
       width: defaults.width,
       height: defaults.height,
       rotation: 0,
@@ -52,12 +55,19 @@ export class AddElementTool extends BaseTool {
     let x = worldPos.x;
     let y = worldPos.y;
 
+    const defaults = this.getDefaults();
+
+    // Center on cursor, then snap the final top-left to grid
+    x = x - defaults.width / 2;
+    y = y - defaults.height / 2;
+
     if (this.ctx.snapToGrid) {
       x = snapToGrid(x, this.ctx.gridSize);
       y = snapToGrid(y, this.ctx.gridSize);
     }
 
-    this.previewPos = { x, y };
+    // Store the center for preview rendering
+    this.previewPos = { x: x + defaults.width / 2, y: y + defaults.height / 2 };
   }
 
   onMouseUp(_worldPos: Point, _e: MouseEvent): void {
@@ -104,7 +114,7 @@ export class AddElementTool extends BaseTool {
       case 'window':
         return {
           width: 60,
-          height: 8,
+          height: 10,
           metadata: {},
         };
       default:
