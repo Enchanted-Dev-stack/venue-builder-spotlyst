@@ -1,0 +1,11 @@
+export declare const DEFAULT_GRID_SIZE = 20;
+export declare const DEFAULT_CANVAS_WIDTH = 1200;
+export declare const DEFAULT_CANVAS_HEIGHT = 800;
+export declare const MIN_ZOOM = 0.25;
+export declare const MAX_ZOOM = 4;
+export declare const ZOOM_SPEED = 0.001;
+export declare const HANDLE_SIZE = 8;
+export declare const WALL_THICKNESS = 6;
+export declare const SNAP_THRESHOLD = 10;
+export declare const ELEMENT_MIN_SIZE = 10;
+export declare const FONT_FAMILY = "-apple-system, 'Segoe UI', Inter, Roboto, sans-serif";

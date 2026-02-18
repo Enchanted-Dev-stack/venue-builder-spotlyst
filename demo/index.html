@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venue Builder — Layout Designer</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, 'Segoe UI', Inter, Roboto, sans-serif;
+    background: #F8FAFC;
+    color: #1E293B;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout Shell ─────────────────────────────────────────────────────── */
+  .app {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── Sidebar ──────────────────────────────────────────────────────────── */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: #1E293B;
+    color: #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 10;
+    user-select: none;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 18px;
+    border-bottom: 1px solid #334155;
+  }
+  .sidebar-logo svg { flex-shrink: 0; }
+  .sidebar-logo h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #F1F5F9;
+  }
+  .sidebar-logo span {
+    font-size: 10px;
+    font-weight: 500;
+    color: #94A3B8;
+    background: #334155;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: auto;
+  }
+
+  .sidebar-section {
+    padding: 14px 14px 6px;
+  }
+  .sidebar-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 8px;
+    padding: 0 4px;
+  }
+
+  .sidebar-btn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .sidebar-btn-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .sidebar-btn-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .sidebar-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 4px 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #CBD5E1;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    position: relative;
+  }
+  .sidebar-btn:hover {
+    background: #334155;
+    color: #F1F5F9;
+  }
+  .sidebar-btn.active {
+    background: #4F46E5;
+    color: #FFFFFF;
+    border-color: #6366F1;
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.3);
+  }
+  .sidebar-btn svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    background: #334155;
+    border: none;
+    border-radius: 6px;
+    color: #CBD5E1;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .sidebar-action-btn:hover {
+    background: #475569;
+    color: #F1F5F9;
+  }
+  .sidebar-action-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* Status buttons */
+  .status-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
+    background: transparent;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #CBD5E1;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .status-btn:hover { background: #334155; }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Status legend */
+  .sidebar-legend {
+    margin-top: auto;
+    padding: 14px;
+    border-top: 1px solid #334155;
+  }
+  .sidebar-legend-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 11px;
+    color: #94A3B8;
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: #334155;
+    margin: 6px 14px;
+  }
+
+  /* ── Main Area ────────────────────────────────────────────────────────── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* ── Toolbar ──────────────────────────────────────────────────────────── */
+  .toolbar {
+    height: 48px;
+    min-height: 48px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    z-index: 5;
+    user-select: none;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: #E2E8F0;
+    margin: 0 6px;
+  }
+  .toolbar-spacer { flex: 1; }
+
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  .toolbar-btn:hover { background: #F1F5F9; color: #1E293B; }
+  .toolbar-btn:active { background: #E2E8F0; }
+  .toolbar-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .toolbar-btn:disabled:hover { background: transparent; color: #64748B; }
+  .toolbar-btn svg { width: 18px; height: 18px; }
+
+  .toolbar-btn-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .toolbar-btn-text:hover { background: #F1F5F9; border-color: #CBD5E1; color: #1E293B; }
+  .toolbar-btn-text svg { width: 14px; height: 14px; }
+
+  .toolbar-tool-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    background: #F1F5F9;
+    padding: 4px 12px;
+    border-radius: 6px;
+  }
+
+  .toolbar-zoom {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748B;
+    min-width: 42px;
+    text-align: center;
+  }
+
+  /* ── Canvas Area ──────────────────────────────────────────────────────── */
+  .canvas-area {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  /* ── Properties Panel ─────────────────────────────────────────────────── */
+  .props-panel {
+    width: 280px;
+    min-width: 280px;
+    background: #FFFFFF;
+    border-left: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: margin-right 0.25s ease, opacity 0.2s ease;
+    user-select: none;
+  }
+  .props-panel.collapsed {
+    margin-right: -280px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .props-panel::-webkit-scrollbar { width: 4px; }
+  .props-panel::-webkit-scrollbar-track { background: transparent; }
+  .props-panel::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 2px; }
+
+  .props-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .props-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E293B;
+  }
+  .props-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #94A3B8;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .props-close-btn:hover { background: #F1F5F9; color: #64748B; }
+  .props-close-btn svg { width: 16px; height: 16px; }
+
+  .props-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    flex: 1;
+  }
+  .props-empty svg { width: 40px; height: 40px; color: #CBD5E1; margin-bottom: 12px; }
+  .props-empty p { font-size: 12px; color: #94A3B8; line-height: 1.5; }
+
+  .props-content { padding: 16px; }
+
+  .prop-group {
+    margin-bottom: 16px;
+  }
+  .prop-group-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #94A3B8;
+    margin-bottom: 8px;
+  }
+  .prop-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .prop-label {
+    font-size: 12px;
+    color: #64748B;
+    width: 70px;
+    flex-shrink: 0;
+  }
+  .prop-value {
+    font-size: 12px;
+    font-weight: 500;
+    color: #1E293B;
+    flex: 1;
+  }
+  .prop-input {
+    width: 100%;
+    flex: 1;
+    padding: 5px 8px;
+    border: 1px solid #E2E8F0;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 12px;
+    color: #1E293B;
+    background: #FAFBFC;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .prop-input:focus { border-color: #4F46E5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
+  .prop-input::-webkit-inner-spin-button,
+  .prop-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .prop-select {
+    width: 100%;
+    flex: 1;
+    padding: 5px 8px;
+    border: 1px solid #E2E8F0;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 12px;
+    color: #1E293B;
+    background: #FAFBFC;
+    outline: none;
+    cursor: pointer;
+  }
+  .prop-select:focus { border-color: #4F46E5; }
+
+  .prop-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .prop-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  /* ── Modal / Overlay ──────────────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .modal-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    width: 560px;
+    max-width: 90vw;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(10px);
+    transition: transform 0.25s ease;
+  }
+  .modal-overlay.visible .modal { transform: translateY(0); }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  .modal-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1E293B;
+  }
+  .modal-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #94A3B8;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .modal-close-btn:hover { background: #F1F5F9; color: #64748B; }
+  .modal-close-btn svg { width: 18px; height: 18px; }
+
+  .modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-textarea {
+    width: 100%;
+    min-height: 300px;
+    padding: 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Mono', Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #1E293B;
+    background: #F8FAFC;
+    resize: vertical;
+    outline: none;
+  }
+  .modal-textarea:focus { border-color: #4F46E5; }
+
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid #E2E8F0;
+  }
+  .modal-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: #FFFFFF;
+    color: #475569;
+  }
+  .modal-btn:hover { background: #F8FAFC; border-color: #CBD5E1; }
+  .modal-btn.primary {
+    background: #4F46E5;
+    color: #FFFFFF;
+    border-color: #4F46E5;
+  }
+  .modal-btn.primary:hover { background: #4338CA; border-color: #4338CA; }
+
+  .copy-feedback {
+    font-size: 12px;
+    color: #10B981;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .copy-feedback.show { opacity: 1; }
+
+  /* ── Tooltips ─────────────────────────────────────────────────────────── */
+  [data-tooltip] {
+    position: relative;
+  }
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1E293B;
+    color: #F1F5F9;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 4px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 50;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  [data-tooltip]:hover::after { opacity: 1; }
+  .sidebar-btn[data-tooltip]::after {
+    bottom: auto;
+    top: calc(100% + 4px);
+  }
+  .status-btn[data-tooltip]::after {
+    left: auto;
+    right: 0;
+    transform: none;
+    bottom: auto;
+    top: calc(100% + 4px);
+  }
+
+  /* ── Keyboard shortcut hints ──────────────────────────────────────────── */
+  .kbd {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    color: #94A3B8;
+    background: rgba(148,163,184,0.15);
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-left: 4px;
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ═══ SIDEBAR ═══════════════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="2" width="20" height="20" rx="4" fill="#4F46E5"/>
+        <path d="M7 8h10M7 12h10M7 16h6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h1>Venue Builder</h1>
+      <span>v1.0</span>
+    </div>
+
+    <!-- Tools -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Tools</div>
+      <div class="sidebar-btn-grid">
+        <button class="sidebar-btn active" id="tool-select" data-tool="select" data-tooltip="Select · V">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 2l12 8-5.5 1.5L9 17z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span>Select</span>
+        </button>
+        <button class="sidebar-btn" id="tool-wall" data-tool="addWall" data-tooltip="Draw Wall · W">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M3 17L17 3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span>Wall</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Elements -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Elements</div>
+      <div class="sidebar-btn-grid cols-3">
+        <button class="sidebar-btn" id="tool-rect-table" data-tool="addTable" data-shape="rectangle" data-tooltip="Rect Table · T">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Rect</span>
+        </button>
+        <button class="sidebar-btn" id="tool-round-table" data-tool="addTable" data-shape="round" data-tooltip="Round Table · R">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Round</span>
+        </button>
+        <button class="sidebar-btn" id="tool-chair" data-tool="addChair" data-tooltip="Chair · C">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="4" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 13v4M15 13v4M4 17h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Chair</span>
+        </button>
+        <button class="sidebar-btn" id="tool-door" data-tool="addDoor" data-tooltip="Door · D">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 3h8a2 2 0 012 2v10a2 2 0 01-2 2H5V3z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="1" fill="currentColor"/></svg>
+          <span>Door</span>
+        </button>
+        <button class="sidebar-btn" id="tool-window" data-tool="addWindow" data-tooltip="Window · N">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="6" x2="10" y2="14" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Window</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Actions -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Actions</div>
+      <button class="sidebar-action-btn" id="btn-group" data-tooltip="Group · Ctrl+G">
+        <svg viewBox="0 0 20 20" fill="none"><rect x="1" y="1" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 9v2a2 2 0 002 2h2M15 9V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Group Selected
+      </button>
+      <button class="sidebar-action-btn" id="btn-ungroup">
+        <svg viewBox="0 0 20 20" fill="none"><rect x="1" y="1" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 11l6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Ungroup
+      </button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Status -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Set Table Status</div>
+      <button class="status-btn" data-status="available" data-tooltip="Set Available">
+        <span class="status-dot" style="background:#10B981"></span> Available
+      </button>
+      <button class="status-btn" data-status="reserved" data-tooltip="Set Reserved">
+        <span class="status-dot" style="background:#F59E0B"></span> Reserved
+      </button>
+      <button class="status-btn" data-status="occupied" data-tooltip="Set Occupied">
+        <span class="status-dot" style="background:#EF4444"></span> Occupied
+      </button>
+      <button class="status-btn" data-status="blocked" data-tooltip="Set Blocked">
+        <span class="status-dot" style="background:#9CA3AF"></span> Blocked
+      </button>
+    </div>
+
+    <!-- Legend -->
+    <div class="sidebar-legend">
+      <div class="sidebar-legend-title">Status Legend</div>
+      <div class="legend-item"><span class="status-dot" style="background:#10B981"></span> Available — Open for booking</div>
+      <div class="legend-item"><span class="status-dot" style="background:#F59E0B"></span> Reserved — Booked ahead</div>
+      <div class="legend-item"><span class="status-dot" style="background:#EF4444"></span> Occupied — Currently in use</div>
+      <div class="legend-item"><span class="status-dot" style="background:#9CA3AF"></span> Blocked — Not available</div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN AREA ════════════════════════════════════════════════════ -->
+  <div class="main">
+    <!-- Toolbar -->
+    <header class="toolbar">
+      <div class="toolbar-group">
+        <button class="toolbar-btn" id="btn-undo" data-tooltip="Undo · Ctrl+Z">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 8h10a3 3 0 013 3v0a3 3 0 01-3 3H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 5L4 8l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="toolbar-btn" id="btn-redo" data-tooltip="Redo · Ctrl+Y">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16 8H6a3 3 0 00-3 3v0a3 3 0 003 3h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="toolbar-separator"></div>
+
+      <span class="toolbar-tool-name" id="toolbar-tool-name">Select</span>
+
+      <div class="toolbar-spacer"></div>
+
+      <!-- Zoom -->
+      <div class="toolbar-group">
+        <button class="toolbar-btn" id="btn-zoom-out" data-tooltip="Zoom Out · -">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M14 14l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 9h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <span class="toolbar-zoom" id="zoom-display">100%</span>
+        <button class="toolbar-btn" id="btn-zoom-in" data-tooltip="Zoom In · +">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M14 14l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 9h6M9 6v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <button class="toolbar-btn" id="btn-zoom-reset" data-tooltip="Reset Zoom · 0">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M3 10a7 7 0 1114 0 7 7 0 01-14 0z" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="toolbar-separator"></div>
+
+      <button class="toolbar-btn-text" id="btn-export" data-tooltip="Export Layout JSON">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Export
+      </button>
+      <button class="toolbar-btn-text" id="btn-import" data-tooltip="Import Layout JSON">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 13V3M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Import
+      </button>
+
+      <div class="toolbar-separator"></div>
+
+      <button class="toolbar-btn" id="btn-toggle-props" data-tooltip="Toggle Properties">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M15 3h2a1 1 0 011 1v12a1 1 0 01-1 1h-2M2 4a1 1 0 011-1h9a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.5"/><path d="M5 7h5M5 10h5M5 13h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <!-- Canvas + Props -->
+    <div class="canvas-area">
+      <div class="canvas-container" id="canvas-container"></div>
+
+      <!-- Properties Panel -->
+      <div class="props-panel" id="props-panel">
+        <div class="props-header">
+          <h3>Properties</h3>
+          <button class="props-close-btn" id="props-close-btn">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div id="props-body">
+          <div class="props-empty">
+            <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M16 20h8M20 16v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <p>Select an element on the canvas to view and edit its properties.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EXPORT MODAL ═════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Export Layout JSON</h3>
+      <button class="modal-close-btn" onclick="closeExportModal()">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <textarea class="modal-textarea" id="export-textarea" readonly></textarea>
+    </div>
+    <div class="modal-footer">
+      <span class="copy-feedback" id="copy-feedback">✓ Copied!</span>
+      <button class="modal-btn" onclick="closeExportModal()">Close</button>
+      <button class="modal-btn primary" onclick="copyExportJSON()">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="6" y="6" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M14 6V4a1 1 0 00-1-1H4a1 1 0 00-1 1v9a1 1 0 001 1h2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Copy to Clipboard
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ IMPORT MODAL ═════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Import Layout JSON</h3>
+      <button class="modal-close-btn" onclick="closeImportModal()">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:#64748B;margin-bottom:10px;">Paste your layout JSON below, or use the button to load from a file.</p>
+      <textarea class="modal-textarea" id="import-textarea" placeholder="Paste JSON here…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" id="import-file-btn">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 13V3M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Load File
+      </button>
+      <button class="modal-btn" onclick="closeImportModal()">Cancel</button>
+      <button class="modal-btn primary" onclick="applyImportJSON()">Import</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".json,application/json" style="display:none"/>
+
+<!-- ═══ UMD BUNDLE ═══════════════════════════════════════════════════ -->
+<script src="../dist/venue-builder.umd.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  // ── Globals ────────────────────────────────────────────────────────────
+  let builder;
+  let propsVisible = true;
+
+  // ── Initialization ─────────────────────────────────────────────────────
+  const canvasContainer = document.getElementById('canvas-container');
+
+  try {
+    builder = new VenueBuilder.VenueBuilder(canvasContainer, {
+      width: 1200,
+      height: 800,
+      gridSize: 20,
+      snapToGrid: true,
+      showGrid: true,
+    });
+  } catch (e) {
+    console.error('Failed to initialize VenueBuilder:', e);
+    canvasContainer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94A3B8;font-size:14px;padding:40px;text-align:center;">⚠️ Could not load VenueBuilder.<br>Make sure the UMD bundle is built at <code>../dist/venue-builder.umd.js</code></div>';
+    return;
+  }
+
+  // ── Seed sample elements ───────────────────────────────────────────────
+  builder.addElement({ type: 'table', x: 120, y: 120, width: 100, height: 70, metadata: { shape: 'rectangle', tableNumber: 1, capacity: 4, status: 'available' } });
+  builder.addElement({ type: 'table', x: 300, y: 120, width: 80, height: 80, metadata: { shape: 'round', tableNumber: 2, capacity: 6, status: 'reserved' } });
+  builder.addElement({ type: 'table', x: 480, y: 120, width: 100, height: 70, metadata: { shape: 'rectangle', tableNumber: 3, capacity: 4, status: 'occupied' } });
+  builder.addElement({ type: 'table', x: 660, y: 120, width: 80, height: 80, metadata: { shape: 'round', tableNumber: 4, capacity: 8, status: 'blocked' } });
+  builder.addElement({ type: 'table', x: 200, y: 320, width: 120, height: 80, metadata: { shape: 'rectangle', tableNumber: 5, capacity: 8, status: 'available' } });
+  builder.addElement({ type: 'table', x: 500, y: 340, width: 90, height: 90, metadata: { shape: 'round', tableNumber: 6, capacity: 6, status: 'available' } });
+
+  // Chairs
+  builder.addElement({ type: 'chair', x: 140, y: 210, width: 30, height: 30, metadata: {} });
+  builder.addElement({ type: 'chair', x: 180, y: 210, width: 30, height: 30, metadata: {} });
+  builder.addElement({ type: 'chair', x: 140, y: 80, width: 30, height: 30, metadata: {} });
+  builder.addElement({ type: 'chair', x: 180, y: 80, width: 30, height: 30, metadata: {} });
+
+  // Wall
+  builder.addElement({ type: 'wall', x: 50, y: 50, width: 700, height: 6, metadata: { points: [{ x: 50, y: 53 }, { x: 750, y: 53 }], thickness: 6 } });
+  builder.addElement({ type: 'wall', x: 50, y: 50, width: 6, height: 420, metadata: { points: [{ x: 53, y: 50 }, { x: 53, y: 470 }], thickness: 6 } });
+
+  // Door & Window
+  builder.addElement({ type: 'door', x: 300, y: 48, width: 50, height: 12, metadata: {} });
+  builder.addElement({ type: 'window', x: 550, y: 48, width: 80, height: 12, metadata: {} });
+
+  // ── Tool name map ──────────────────────────────────────────────────────
+  const toolNames = {
+    select: 'Select',
+    addWall: 'Draw Wall',
+    addTable: 'Add Table',
+    addChair: 'Add Chair',
+    addDoor: 'Add Door',
+    addWindow: 'Add Window',
+  };
+
+  // ── Wire up sidebar tool buttons ───────────────────────────────────────
+  const allToolBtns = document.querySelectorAll('.sidebar-btn[data-tool]');
+  function setActiveTool(toolType, shape) {
+    if (toolType === 'addTable') {
+      builder.setTool(toolType, { shape: shape || 'rectangle' });
+    } else {
+      builder.setTool(toolType);
+    }
+    // Update active button
+    allToolBtns.forEach(b => b.classList.remove('active'));
+    const activeBtn = document.querySelector(`.sidebar-btn[data-tool="${toolType}"]${shape ? `[data-shape="${shape}"]` : ':not([data-shape])'}`);
+    if (activeBtn) activeBtn.classList.add('active');
+    // If it's addTable with a specific shape, only highlight the matching one
+    if (toolType === 'addTable') {
+      document.querySelectorAll('.sidebar-btn[data-tool="addTable"]').forEach(b => b.classList.remove('active'));
+      const btn = document.querySelector(`.sidebar-btn[data-tool="addTable"][data-shape="${shape || 'rectangle'}"]`);
+      if (btn) btn.classList.add('active');
+    }
+    document.getElementById('toolbar-tool-name').textContent = toolNames[toolType] || toolType;
+  }
+
+  allToolBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setActiveTool(btn.dataset.tool, btn.dataset.shape);
+    });
+  });
+
+  // ── Keyboard shortcuts for tools ───────────────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target || {}).tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    switch(e.key.toLowerCase()) {
+      case 'v': setActiveTool('select'); break;
+      case 'w': setActiveTool('addWall'); break;
+      case 't': setActiveTool('addTable', 'rectangle'); break;
+      case 'r': setActiveTool('addTable', 'round'); break;
+      case 'c': setActiveTool('addChair'); break;
+      case 'd': setActiveTool('addDoor'); break;
+      case 'n': setActiveTool('addWindow'); break;
+    }
+  });
+
+  // ── Undo / Redo ────────────────────────────────────────────────────────
+  document.getElementById('btn-undo').addEventListener('click', () => builder.undo());
+  document.getElementById('btn-redo').addEventListener('click', () => builder.redo());
+
+  // Listen for canvas custom events from InteractionManager keyboard handling
+  const canvas = canvasContainer.querySelector('canvas');
+  if (canvas) {
+    canvas.addEventListener('venue:undo', () => builder.undo());
+    canvas.addEventListener('venue:redo', () => builder.redo());
+    canvas.addEventListener('venue:deleteSelected', () => {
+      const selected = builder.getSelectedElements();
+      selected.forEach(el => builder.removeElement(el.id));
+    });
+  }
+
+  // ── Group / Ungroup ────────────────────────────────────────────────────
+  document.getElementById('btn-group').addEventListener('click', () => builder.groupSelected());
+  document.getElementById('btn-ungroup').addEventListener('click', () => builder.ungroupSelected());
+
+  // ── Status buttons ─────────────────────────────────────────────────────
+  document.querySelectorAll('.status-btn[data-status]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const status = btn.dataset.status;
+      const selected = builder.getSelectedElements();
+      selected.forEach(el => {
+        if (el.type === 'table') {
+          builder.updateElement(el.id, { metadata: { ...el.metadata, status: status } });
+        }
+      });
+      updatePropsPanel();
+    });
+  });
+
+  // ── Zoom controls ──────────────────────────────────────────────────────
+  // We don't have direct access to the camera, so we simulate zoom via the canvas
+  // For now we track zoom state separately since camera isn't directly exposed
+  let currentZoom = 1;
+
+  function simulateZoom(delta) {
+    // Simulate a wheel event at center of canvas
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const wheelEvt = new WheelEvent('wheel', {
+      deltaY: delta,
+      clientX: rect.left + cx,
+      clientY: rect.top + cy,
+      bubbles: true,
+      cancelable: true,
+    });
+    canvas.dispatchEvent(wheelEvt);
+    // Estimate zoom (ZOOM_SPEED = 0.001)
+    currentZoom = currentZoom * (1 - delta * 0.001);
+    currentZoom = Math.max(0.25, Math.min(4, currentZoom));
+    updateZoomDisplay();
+  }
+
+  function updateZoomDisplay() {
+    document.getElementById('zoom-display').textContent = Math.round(currentZoom * 100) + '%';
+  }
+
+  document.getElementById('btn-zoom-in').addEventListener('click', () => simulateZoom(-120));
+  document.getElementById('btn-zoom-out').addEventListener('click', () => simulateZoom(120));
+  document.getElementById('btn-zoom-reset').addEventListener('click', () => {
+    // Dispatch enough zoom events to get back to 1, or just simulate reset
+    // Since we can't access camera directly, best effort:
+    currentZoom = 1;
+    // Simulate reset by dispatching a custom approach – rebuild
+    // Actually, let's just create a fresh canvas interaction
+    if (canvas) {
+      // We'll do a hacky but functional approach: multiple zoom adjustments
+      // Better: just re-export, reset, re-import
+      const json = builder.toJSON();
+      builder.loadJSON(json);
+      currentZoom = 1;
+      updateZoomDisplay();
+    }
+  });
+
+  // Track actual zoom from wheel events on canvas
+  if (canvas) {
+    canvas.addEventListener('wheel', () => {
+      // We can't read the camera directly, but the event already went through.
+      // Our simulateZoom already updates for button clicks.
+      // For direct wheel, we estimate:
+    }, { passive: true });
+  }
+
+  // ── Export / Import ────────────────────────────────────────────────────
+  function openExportModal() {
+    const json = JSON.stringify(builder.toJSON(), null, 2);
+    document.getElementById('export-textarea').value = json;
+    document.getElementById('export-modal').classList.add('visible');
+  }
+  function closeExportModal() {
+    document.getElementById('export-modal').classList.remove('visible');
+  }
+  function copyExportJSON() {
+    const textarea = document.getElementById('export-textarea');
+    navigator.clipboard.writeText(textarea.value).then(() => {
+      const fb = document.getElementById('copy-feedback');
+      fb.classList.add('show');
+      setTimeout(() => fb.classList.remove('show'), 2000);
+    });
+  }
+
+  function openImportModal() {
+    document.getElementById('import-textarea').value = '';
+    document.getElementById('import-modal').classList.add('visible');
+  }
+  function closeImportModal() {
+    document.getElementById('import-modal').classList.remove('visible');
+  }
+  function applyImportJSON() {
+    const raw = document.getElementById('import-textarea').value.trim();
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      builder.loadJSON(data);
+      closeImportModal();
+      currentZoom = 1;
+      updateZoomDisplay();
+    } catch (e) {
+      alert('Invalid JSON: ' + e.message);
+    }
+  }
+
+  // File input for import
+  const fileInput = document.getElementById('file-input');
+  document.getElementById('import-file-btn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      document.getElementById('import-textarea').value = ev.target.result;
+    };
+    reader.readAsText(file);
+    fileInput.value = ''; // reset
+  });
+
+  document.getElementById('btn-export').addEventListener('click', openExportModal);
+  document.getElementById('btn-import').addEventListener('click', openImportModal);
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('visible');
+      }
+    });
+  });
+
+  // Close modals on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+    }
+  });
+
+  // Expose globally for inline onclick handlers
+  window.closeExportModal = closeExportModal;
+  window.copyExportJSON = copyExportJSON;
+  window.closeImportModal = closeImportModal;
+  window.applyImportJSON = applyImportJSON;
+
+  // ── Properties Panel ───────────────────────────────────────────────────
+  const propsPanel = document.getElementById('props-panel');
+  const propsBody = document.getElementById('props-body');
+
+  function togglePropsPanel() {
+    propsVisible = !propsVisible;
+    propsPanel.classList.toggle('collapsed', !propsVisible);
+  }
+
+  document.getElementById('btn-toggle-props').addEventListener('click', togglePropsPanel);
+  document.getElementById('props-close-btn').addEventListener('click', togglePropsPanel);
+
+  function getStatusBadgeHTML(status) {
+    const colors = {
+      available: { bg: '#ECFDF5', fg: '#059669', dot: '#10B981' },
+      reserved: { bg: '#FFFBEB', fg: '#B45309', dot: '#F59E0B' },
+      occupied: { bg: '#FEF2F2', fg: '#DC2626', dot: '#EF4444' },
+      blocked: { bg: '#F3F4F6', fg: '#6B7280', dot: '#9CA3AF' },
+    };
+    const c = colors[status] || colors.available;
+    return `<span class="prop-badge" style="background:${c.bg};color:${c.fg}"><span class="prop-badge-dot" style="background:${c.dot}"></span>${status}</span>`;
+  }
+
+  function updatePropsPanel() {
+    const selected = builder.getSelectedElements();
+    if (selected.length === 0) {
+      propsBody.innerHTML = `
+        <div class="props-empty">
+          <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M16 20h8M20 16v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <p>Select an element on the canvas to view and edit its properties.</p>
+        </div>`;
+      return;
+    }
+
+    if (selected.length > 1) {
+      propsBody.innerHTML = `
+        <div class="props-content">
+          <div class="prop-group">
+            <div class="prop-group-title">Multi-Selection</div>
+            <div class="prop-row"><span class="prop-label">Count</span><span class="prop-value">${selected.length} elements</span></div>
+            <div class="prop-row"><span class="prop-label">Types</span><span class="prop-value">${[...new Set(selected.map(e => e.type))].join(', ')}</span></div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    const el = selected[0];
+    const isTable = el.type === 'table';
+    const meta = el.metadata || {};
+
+    let html = `<div class="props-content">`;
+
+    // Type badge
+    html += `<div class="prop-group">
+      <div class="prop-group-title">Element</div>
+      <div class="prop-row"><span class="prop-label">Type</span><span class="prop-value" style="text-transform:capitalize">${el.type}${isTable && meta.shape ? ' (' + meta.shape + ')' : ''}</span></div>
+      <div class="prop-row"><span class="prop-label">ID</span><span class="prop-value" style="font-size:10px;color:#94A3B8;font-family:monospace;word-break:break-all">${el.id}</span></div>
+    </div>`;
+
+    // Position & size
+    html += `<div class="prop-group">
+      <div class="prop-group-title">Transform</div>
+      <div class="prop-row"><span class="prop-label">X</span><input class="prop-input" type="number" data-prop="x" value="${Math.round(el.x)}" /></div>
+      <div class="prop-row"><span class="prop-label">Y</span><input class="prop-input" type="number" data-prop="y" value="${Math.round(el.y)}" /></div>
+      <div class="prop-row"><span class="prop-label">Width</span><input class="prop-input" type="number" data-prop="width" value="${Math.round(el.width)}" /></div>
+      <div class="prop-row"><span class="prop-label">Height</span><input class="prop-input" type="number" data-prop="height" value="${Math.round(el.height)}" /></div>
+      <div class="prop-row"><span class="prop-label">Rotation</span><input class="prop-input" type="number" data-prop="rotation" value="${el.rotation}" step="15" /></div>
+    </div>`;
+
+    // Table-specific props
+    if (isTable) {
+      html += `<div class="prop-group">
+        <div class="prop-group-title">Table Properties</div>
+        <div class="prop-row"><span class="prop-label">Table #</span><input class="prop-input" type="number" data-meta="tableNumber" value="${meta.tableNumber ?? ''}" min="0" /></div>
+        <div class="prop-row"><span class="prop-label">Capacity</span><input class="prop-input" type="number" data-meta="capacity" value="${meta.capacity ?? ''}" min="1" /></div>
+        <div class="prop-row"><span class="prop-label">Status</span>
+          <select class="prop-select" data-meta="status">
+            <option value="available" ${meta.status === 'available' ? 'selected' : ''}>✅ Available</option>
+            <option value="reserved" ${meta.status === 'reserved' ? 'selected' : ''}>🟡 Reserved</option>
+            <option value="occupied" ${meta.status === 'occupied' ? 'selected' : ''}>🔴 Occupied</option>
+            <option value="blocked" ${meta.status === 'blocked' ? 'selected' : ''}>⬜ Blocked</option>
+          </select>
+        </div>
+        <div class="prop-row"><span class="prop-label">Current</span>${getStatusBadgeHTML(meta.status || 'available')}</div>
+        <div class="prop-row"><span class="prop-label">Label</span><input class="prop-input" type="text" data-meta="label" value="${meta.label ?? ''}" placeholder="Optional label" /></div>
+      </div>`;
+    }
+
+    html += `</div>`;
+    propsBody.innerHTML = html;
+
+    // ── Bind prop inputs ─────────────────────────────────────────────────
+    propsBody.querySelectorAll('.prop-input[data-prop]').forEach(input => {
+      input.addEventListener('change', () => {
+        const prop = input.dataset.prop;
+        const val = input.type === 'number' ? parseFloat(input.value) : input.value;
+        builder.updateElement(el.id, { [prop]: val });
+        // Refresh after short delay to pick up actual state
+        setTimeout(updatePropsPanel, 50);
+      });
+    });
+
+    propsBody.querySelectorAll('.prop-input[data-meta], .prop-select[data-meta]').forEach(input => {
+      input.addEventListener('change', () => {
+        const metaKey = input.dataset.meta;
+        let val = input.value;
+        if (input.type === 'number') val = val === '' ? undefined : parseFloat(val);
+        const currentEl = builder.getSelectedElements()[0];
+        if (!currentEl) return;
+        const newMeta = { ...currentEl.metadata, [metaKey]: val };
+        builder.updateElement(el.id, { metadata: newMeta });
+        setTimeout(updatePropsPanel, 50);
+      });
+    });
+  }
+
+  // ── Event Listeners ────────────────────────────────────────────────────
+  builder.on('elementSelected', () => updatePropsPanel());
+  builder.on('toolChanged', (data) => {
+    document.getElementById('toolbar-tool-name').textContent = toolNames[data.tool] || data.tool;
+    // Update sidebar active button
+    allToolBtns.forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.sidebar-btn[data-tool="${data.tool}"]`);
+    if (btn) btn.classList.add('active');
+  });
+
+  // Poll for selection changes (since elementSelected might not fire on click deselect)
+  let lastSelectedIds = '';
+  setInterval(() => {
+    const sel = builder.getSelectedElements();
+    const ids = sel.map(e => e.id).join(',');
+    if (ids !== lastSelectedIds) {
+      lastSelectedIds = ids;
+      updatePropsPanel();
+    }
+  }, 200);
+
+  // ── Initial state ──────────────────────────────────────────────────────
+  updatePropsPanel();
+  updateZoomDisplay();
+
+})();
+</script>
+</body>
+</html>

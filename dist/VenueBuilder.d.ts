@@ -1,0 +1,51 @@
+import { BaseElement } from './elements/BaseElement';
+import { VenueBuilderOptions, ToolType, ElementData, LayoutData, GroupData, BuilderEvent, TableShape } from './core/types';
+export declare class VenueBuilder {
+    private container;
+    private canvas;
+    private ctx;
+    private camera;
+    private grid;
+    private elementManager;
+    private selectionManager;
+    private historyManager;
+    private groupManager;
+    private interactionManager;
+    private emitter;
+    private options;
+    private dirty;
+    private animFrameId;
+    private currentToolType;
+    private resizeObserver;
+    private boundDeleteHandler;
+    private boundUndoHandler;
+    private boundRedoHandler;
+    constructor(container: HTMLElement, options?: VenueBuilderOptions);
+    addElement(data: Partial<ElementData> & {
+        type: string;
+    }): BaseElement;
+    removeElement(id: string): void;
+    updateElement(id: string, updates: Partial<ElementData>): void;
+    setTool(toolType: ToolType, config?: {
+        shape?: TableShape;
+    }): void;
+    getToolType(): ToolType;
+    toJSON(): LayoutData;
+    loadJSON(data: LayoutData): void;
+    groupSelected(): GroupData | null;
+    ungroupSelected(): void;
+    undo(): void;
+    redo(): void;
+    on<K extends keyof BuilderEvent>(event: K, callback: (data: BuilderEvent[K]) => void): () => void;
+    getElements(): ElementData[];
+    getGroups(): GroupData[];
+    getSelectedElements(): ElementData[];
+    destroy(): void;
+    private deleteSelected;
+    private markDirty;
+    private saveHistory;
+    private setupResizeObserver;
+    private startRenderLoop;
+    private render;
+    private drawToolPreviews;
+}
