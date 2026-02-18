@@ -127,6 +127,20 @@ export class VenueBuilder {
     }
   }
 
+  addElementSilent(data: Partial<ElementData> & { type: string }): BaseElement {
+    const element = this.elementManager.createFromData(data);
+    this.markDirty();
+    return element;
+  }
+
+  removeElementSilent(id: string): void {
+    const element = this.elementManager.remove(id);
+    if (element) {
+      this.selectionManager.deselect(id);
+      this.markDirty();
+    }
+  }
+
   setTool(toolType: ToolType, config?: { shape?: TableShape }): void {
     const toolContext: ToolContext = {
       camera: this.camera,
@@ -202,14 +216,16 @@ export class VenueBuilder {
     return this.groupElementsByIds(selectedIds);
   }
 
-  groupElementsByIds(ids: string[]): GroupData | null {
+  groupElementsByIds(ids: string[], options?: { autoRotate?: boolean }): GroupData | null {
     const uniqueIds = [...new Set(ids)];
     if (uniqueIds.length < 2) return null;
     const elements = uniqueIds.map(id => this.elementManager.get(id)).filter(Boolean) as BaseElement[];
     if (elements.length < 2) return null;
     const group = this.groupManager.createGroup(elements);
 
-    this.autoRotateChairsAroundTable(elements);
+    if (options?.autoRotate !== false) {
+      this.autoRotateChairsAroundTable(elements);
+    }
 
     this.selectionManager.clearSelection();
     for (const el of elements) {
