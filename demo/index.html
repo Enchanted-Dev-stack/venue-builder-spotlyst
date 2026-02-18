@@ -1659,14 +1659,18 @@
       (1 + totalChairs) + ' elements';
   }
 
+  var tgPlaceCount = 0;
   window.tgAddToCanvas = function() {
     var layout = tgComputeLayout();
     var cs = tgState.chairSize;
-    var placeX = 200;
-    var placeY = 200;
+    var offset = tgPlaceCount * 40;
+    var placeX = 200 + offset;
+    var placeY = 200 + offset;
+    tgPlaceCount++;
     var totalChairs = tgState.chairsTop + tgState.chairsBottom + tgState.chairsLeft + tgState.chairsRight;
 
-    builder.addElement({
+    var addedIds = [];
+    var tableEl = builder.addElement({
       type: 'table',
       x: placeX,
       y: placeY,
@@ -1678,10 +1682,11 @@
         capacity: totalChairs,
       },
     });
+    addedIds.push(tableEl.id);
 
     for (var i = 0; i < layout.chairs.length; i++) {
       var c = layout.chairs[i];
-      builder.addElement({
+      var chairEl = builder.addElement({
         type: 'chair',
         x: placeX + c.x,
         y: placeY + c.y,
@@ -1690,10 +1695,16 @@
         rotation: c.rotation,
         metadata: {},
       });
+      addedIds.push(chairEl.id);
     }
 
     closeTGModal();
     setActiveTool('select');
+
+    // Auto-group all generated elements
+    if (addedIds.length > 1) {
+      builder.groupElementsByIds(addedIds);
+    }
   };
 
   window.closeTGModal = closeTGModal;

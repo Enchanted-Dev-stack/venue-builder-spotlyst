@@ -80,7 +80,7 @@ export function pointToLineDistance(
  * Zoomed out → coarser snap (max baseGridSize), zoomed in → finer snap (min 1px).
  */
 export function getEffectiveSnapSize(baseGridSize: number, zoom: number): number {
-  const raw = baseGridSize / (zoom * zoom);
+  const raw = baseGridSize / (zoom * zoom * zoom);
   const niceValues = [1, 2, 5, 10, 20];
   let best = niceValues[0];
   for (const v of niceValues) {
