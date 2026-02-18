@@ -202,6 +202,23 @@ export class VenueBuilder {
     if (selectedIds.length < 2) return null;
     const elements = selectedIds.map(id => this.elementManager.get(id)).filter(Boolean) as BaseElement[];
     const group = this.groupManager.createGroup(elements);
+
+    // Auto-rotate chairs around circular tables
+    const roundTable = elements.find(
+      (el) => el.type === 'table' && el.metadata.shape === 'round'
+    );
+    if (roundTable) {
+      const tableCx = roundTable.x + roundTable.width / 2;
+      const tableCy = roundTable.y + roundTable.height / 2;
+      const chairs = elements.filter((el) => el.type === 'chair');
+      for (const chair of chairs) {
+        const chairCx = chair.x + chair.width / 2;
+        const chairCy = chair.y + chair.height / 2;
+        const angleDeg = Math.atan2(chairCy - tableCy, chairCx - tableCx) * (180 / Math.PI) + 90;
+        chair.rotation = Math.round(angleDeg);
+      }
+    }
+
     this.saveHistory();
     this.emitter.emit('groupCreated', { group });
     this.markDirty();

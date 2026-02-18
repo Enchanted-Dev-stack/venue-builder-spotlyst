@@ -95,6 +95,23 @@ export class WallElement extends BaseElement {
     return false;
   }
 
+  override moveTo(x: number, y: number): void {
+    const dx = x - this.x;
+    const dy = y - this.y;
+    this.moveBy(dx, dy);
+  }
+
+  override moveBy(dx: number, dy: number): void {
+    if (dx === 0 && dy === 0) return;
+    const pts = this.metadata.points as Point[];
+    for (const pt of pts) {
+      pt.x += dx;
+      pt.y += dy;
+    }
+    this.x += dx;
+    this.y += dy;
+  }
+
   /**
    * Recalculates bounding box from the wall's points.
    */
