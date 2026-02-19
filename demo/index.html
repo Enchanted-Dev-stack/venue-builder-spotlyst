@@ -1248,50 +1248,73 @@
     gapRight: 5,
     autoResize: true,
     chairSize: 30,
+    chairsTotal: 4,
+    gapCircular: 10,
   };
   var tgActive = false;
 
   function renderTGInPropsPanel() {
-    propsBody.innerHTML = '<div class="tg-panel"><div class="props-content" style="padding:12px 16px;">'
+    var isRound = tgState.shape === 'round';
+    var html = '<div class="tg-panel"><div class="props-content" style="padding:12px 16px;">'
       + '<div class="tg-controls">'
       + '<div class="tg-section-title" style="margin-top:0;">Table Shape</div>'
       + '<div class="tg-shape-toggle">'
-      + '<button class="active" data-shape="rectangle">\u25ac Rect</button>'
-      + '<button data-shape="round">\u25cf Round</button>'
+      + '<button class="' + (isRound ? '' : 'active') + '" data-shape="rectangle">\u25ac Rect</button>'
+      + '<button class="' + (isRound ? 'active' : '') + '" data-shape="round">\u25cf Round</button>'
       + '</div>'
-      + '<div class="tg-section-title">Table Size</div>'
-      + '<div class="tg-row"><span class="tg-label">Width</span>'
-      + '<div class="tg-stepper"><button onclick="tgAdjust(\'tableWidth\',-10)">\u2212</button>'
-      + '<input type="number" id="tg-table-width" value="120" min="40" step="10">'
-      + '<button onclick="tgAdjust(\'tableWidth\',10)">+</button></div></div>'
-      + '<div class="tg-row"><span class="tg-label">Height</span>'
-      + '<div class="tg-stepper"><button onclick="tgAdjust(\'tableHeight\',-10)">\u2212</button>'
-      + '<input type="number" id="tg-table-height" value="80" min="40" step="10">'
-      + '<button onclick="tgAdjust(\'tableHeight\',10)">+</button></div></div>'
-      + '<div class="tg-section-title">Chairs Per Side</div>'
-      + '<div class="tg-chairs-grid">'
-      + '<div class="tg-row"><span class="tg-label">Top</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsTop\',-1)">\u2212</button><input type="number" id="tg-chairs-top" value="2" min="0" step="1"><button onclick="tgAdjust(\'chairsTop\',1)">+</button></div></div>'
-      + '<div class="tg-row"><span class="tg-label">Bottom</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsBottom\',-1)">\u2212</button><input type="number" id="tg-chairs-bottom" value="2" min="0" step="1"><button onclick="tgAdjust(\'chairsBottom\',1)">+</button></div></div>'
-      + '<div class="tg-row"><span class="tg-label">Left</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsLeft\',-1)">\u2212</button><input type="number" id="tg-chairs-left" value="0" min="0" step="1"><button onclick="tgAdjust(\'chairsLeft\',1)">+</button></div></div>'
-      + '<div class="tg-row"><span class="tg-label">Right</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsRight\',-1)">\u2212</button><input type="number" id="tg-chairs-right" value="0" min="0" step="1"><button onclick="tgAdjust(\'chairsRight\',1)">+</button></div></div>'
-      + '</div>'
-      + '<div class="tg-section-title">Chair Gap (px)</div>'
-      + '<div class="tg-chairs-grid">'
-      + '<div class="tg-row"><span class="tg-label">Top</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapTop\',-1)">\u2212</button><input type="number" id="tg-gap-top" value="5" min="0" step="1"><button onclick="tgAdjust(\'gapTop\',1)">+</button></div></div>'
-      + '<div class="tg-row"><span class="tg-label">Bottom</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapBottom\',-1)">\u2212</button><input type="number" id="tg-gap-bottom" value="5" min="0" step="1"><button onclick="tgAdjust(\'gapBottom\',1)">+</button></div></div>'
-      + '<div class="tg-row"><span class="tg-label">Left</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapLeft\',-1)">\u2212</button><input type="number" id="tg-gap-left" value="5" min="0" step="1"><button onclick="tgAdjust(\'gapLeft\',1)">+</button></div></div>'
-      + '<div class="tg-row"><span class="tg-label">Right</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapRight\',-1)">\u2212</button><input type="number" id="tg-gap-right" value="5" min="0" step="1"><button onclick="tgAdjust(\'gapRight\',1)">+</button></div></div>'
-      + '</div>'
-      + '<div class="tg-row" style="margin-top:6px;"><label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#475569;cursor:pointer;">'
-      + '<input type="checkbox" id="tg-auto-resize" checked style="accent-color:#4F46E5;"> Auto-resize table'
-      + '</label></div>'
-      + '</div>'
+      + '<div class="tg-section-title">Table Size</div>';
+
+    if (isRound) {
+      html += '<div class="tg-row"><span class="tg-label">Diameter</span>'
+        + '<div class="tg-stepper"><button onclick="tgAdjust(\'tableWidth\',-10)">\u2212</button>'
+        + '<input type="number" id="tg-table-width" value="' + tgState.tableWidth + '" min="40" step="10">'
+        + '<button onclick="tgAdjust(\'tableWidth\',10)">+</button></div></div>'
+        + '<div class="tg-section-title">Chairs</div>'
+        + '<div class="tg-row"><span class="tg-label">Count</span>'
+        + '<div class="tg-stepper"><button onclick="tgAdjust(\'chairsTotal\',-1)">\u2212</button>'
+        + '<input type="number" id="tg-chairs-total" value="' + tgState.chairsTotal + '" min="0" step="1">'
+        + '<button onclick="tgAdjust(\'chairsTotal\',1)">+</button></div></div>'
+        + '<div class="tg-section-title">Chair Gap (px)</div>'
+        + '<div class="tg-row"><span class="tg-label">Gap</span>'
+        + '<div class="tg-stepper"><button onclick="tgAdjust(\'gapCircular\',-1)">\u2212</button>'
+        + '<input type="number" id="tg-gap-circular" value="' + tgState.gapCircular + '" min="0" step="1">'
+        + '<button onclick="tgAdjust(\'gapCircular\',1)">+</button></div></div>';
+    } else {
+      html += '<div class="tg-row"><span class="tg-label">Width</span>'
+        + '<div class="tg-stepper"><button onclick="tgAdjust(\'tableWidth\',-10)">\u2212</button>'
+        + '<input type="number" id="tg-table-width" value="' + tgState.tableWidth + '" min="40" step="10">'
+        + '<button onclick="tgAdjust(\'tableWidth\',10)">+</button></div></div>'
+        + '<div class="tg-row"><span class="tg-label">Height</span>'
+        + '<div class="tg-stepper"><button onclick="tgAdjust(\'tableHeight\',-10)">\u2212</button>'
+        + '<input type="number" id="tg-table-height" value="' + tgState.tableHeight + '" min="40" step="10">'
+        + '<button onclick="tgAdjust(\'tableHeight\',10)">+</button></div></div>'
+        + '<div class="tg-section-title">Chairs Per Side</div>'
+        + '<div class="tg-chairs-grid">'
+        + '<div class="tg-row"><span class="tg-label">Top</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsTop\',-1)">\u2212</button><input type="number" id="tg-chairs-top" value="' + tgState.chairsTop + '" min="0" step="1"><button onclick="tgAdjust(\'chairsTop\',1)">+</button></div></div>'
+        + '<div class="tg-row"><span class="tg-label">Bottom</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsBottom\',-1)">\u2212</button><input type="number" id="tg-chairs-bottom" value="' + tgState.chairsBottom + '" min="0" step="1"><button onclick="tgAdjust(\'chairsBottom\',1)">+</button></div></div>'
+        + '<div class="tg-row"><span class="tg-label">Left</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsLeft\',-1)">\u2212</button><input type="number" id="tg-chairs-left" value="' + tgState.chairsLeft + '" min="0" step="1"><button onclick="tgAdjust(\'chairsLeft\',1)">+</button></div></div>'
+        + '<div class="tg-row"><span class="tg-label">Right</span><div class="tg-stepper"><button onclick="tgAdjust(\'chairsRight\',-1)">\u2212</button><input type="number" id="tg-chairs-right" value="' + tgState.chairsRight + '" min="0" step="1"><button onclick="tgAdjust(\'chairsRight\',1)">+</button></div></div>'
+        + '</div>'
+        + '<div class="tg-section-title">Chair Gap (px)</div>'
+        + '<div class="tg-chairs-grid">'
+        + '<div class="tg-row"><span class="tg-label">Top</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapTop\',-1)">\u2212</button><input type="number" id="tg-gap-top" value="' + tgState.gapTop + '" min="0" step="1"><button onclick="tgAdjust(\'gapTop\',1)">+</button></div></div>'
+        + '<div class="tg-row"><span class="tg-label">Bottom</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapBottom\',-1)">\u2212</button><input type="number" id="tg-gap-bottom" value="' + tgState.gapBottom + '" min="0" step="1"><button onclick="tgAdjust(\'gapBottom\',1)">+</button></div></div>'
+        + '<div class="tg-row"><span class="tg-label">Left</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapLeft\',-1)">\u2212</button><input type="number" id="tg-gap-left" value="' + tgState.gapLeft + '" min="0" step="1"><button onclick="tgAdjust(\'gapLeft\',1)">+</button></div></div>'
+        + '<div class="tg-row"><span class="tg-label">Right</span><div class="tg-stepper"><button onclick="tgAdjust(\'gapRight\',-1)">\u2212</button><input type="number" id="tg-gap-right" value="' + tgState.gapRight + '" min="0" step="1"><button onclick="tgAdjust(\'gapRight\',1)">+</button></div></div>'
+        + '</div>'
+        + '<div class="tg-row" style="margin-top:6px;"><label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#475569;cursor:pointer;">'
+        + '<input type="checkbox" id="tg-auto-resize" checked style="accent-color:#4F46E5;"> Auto-resize table'
+        + '</label></div>';
+    }
+
+    html += '</div>'
       + '<div style="text-align:center;margin-top:8px;padding:6px;background:#F8FAFC;border-radius:6px;font-size:11px;color:#64748B;font-weight:500;" id="tg-summary">0 elements</div>'
       + '<div class="tg-panel-actions">'
       + '<button class="tg-cancel-btn" onclick="closeTGModal()">Cancel</button>'
       + '<button class="tg-add-btn" onclick="tgAddToCanvas()">&check; Add</button>'
       + '</div>'
       + '</div></div>';
+    propsBody.innerHTML = html;
   }
 
   function openTGModal() {
@@ -1315,17 +1338,20 @@
   }
 
   function tgSyncInputs() {
-    document.getElementById('tg-table-width').value = tgState.tableWidth;
-    document.getElementById('tg-table-height').value = tgState.tableHeight;
-    document.getElementById('tg-chairs-top').value = tgState.chairsTop;
-    document.getElementById('tg-chairs-bottom').value = tgState.chairsBottom;
-    document.getElementById('tg-chairs-left').value = tgState.chairsLeft;
-    document.getElementById('tg-chairs-right').value = tgState.chairsRight;
-    document.getElementById('tg-gap-top').value = tgState.gapTop;
-    document.getElementById('tg-gap-bottom').value = tgState.gapBottom;
-    document.getElementById('tg-gap-left').value = tgState.gapLeft;
-    document.getElementById('tg-gap-right').value = tgState.gapRight;
-    document.getElementById('tg-auto-resize').checked = tgState.autoResize;
+    var el;
+    el = document.getElementById('tg-table-width'); if (el) el.value = tgState.tableWidth;
+    el = document.getElementById('tg-table-height'); if (el) el.value = tgState.tableHeight;
+    el = document.getElementById('tg-chairs-top'); if (el) el.value = tgState.chairsTop;
+    el = document.getElementById('tg-chairs-bottom'); if (el) el.value = tgState.chairsBottom;
+    el = document.getElementById('tg-chairs-left'); if (el) el.value = tgState.chairsLeft;
+    el = document.getElementById('tg-chairs-right'); if (el) el.value = tgState.chairsRight;
+    el = document.getElementById('tg-gap-top'); if (el) el.value = tgState.gapTop;
+    el = document.getElementById('tg-gap-bottom'); if (el) el.value = tgState.gapBottom;
+    el = document.getElementById('tg-gap-left'); if (el) el.value = tgState.gapLeft;
+    el = document.getElementById('tg-gap-right'); if (el) el.value = tgState.gapRight;
+    el = document.getElementById('tg-chairs-total'); if (el) el.value = tgState.chairsTotal;
+    el = document.getElementById('tg-gap-circular'); if (el) el.value = tgState.gapCircular;
+    el = document.getElementById('tg-auto-resize'); if (el) el.checked = tgState.autoResize;
     document.querySelectorAll('.tg-shape-toggle button').forEach(function(b) {
       b.classList.toggle('active', b.dataset.shape === tgState.shape);
     });
@@ -1343,8 +1369,11 @@
       gapBottom: 'tg-gap-bottom',
       gapLeft: 'tg-gap-left',
       gapRight: 'tg-gap-right',
+      chairsTotal: 'tg-chairs-total',
+      gapCircular: 'tg-gap-circular',
     };
     var input = document.getElementById(inputMap[field]);
+    if (!input) return;
     var minVal = parseFloat(input.min) || 0;
     var newVal = Math.max(minVal, (tgState[field] || 0) + delta);
     tgState[field] = newVal;
@@ -1352,10 +1381,12 @@
     if (tgState.shape === 'round') {
       if (field === 'tableWidth') {
         tgState.tableHeight = newVal;
-        document.getElementById('tg-table-height').value = newVal;
+        var h = document.getElementById('tg-table-height');
+        if (h) h.value = newVal;
       } else if (field === 'tableHeight') {
         tgState.tableWidth = newVal;
-        document.getElementById('tg-table-width').value = newVal;
+        var w = document.getElementById('tg-table-width');
+        if (w) w.value = newVal;
       }
     }
     tgUpdatePreview();
@@ -1373,40 +1404,52 @@
       ['tg-gap-bottom', 'gapBottom'],
       ['tg-gap-left', 'gapLeft'],
       ['tg-gap-right', 'gapRight'],
+      ['tg-chairs-total', 'chairsTotal'],
+      ['tg-gap-circular', 'gapCircular'],
     ];
     fields.forEach(function(pair) {
       var input = document.getElementById(pair[0]);
+      if (!input) return;
       input.addEventListener('input', function() {
         var val = Math.max(parseFloat(input.min) || 0, parseFloat(input.value) || 0);
         tgState[pair[1]] = val;
         if (tgState.shape === 'round') {
           if (pair[1] === 'tableWidth') {
             tgState.tableHeight = val;
-            document.getElementById('tg-table-height').value = val;
           } else if (pair[1] === 'tableHeight') {
             tgState.tableWidth = val;
-            document.getElementById('tg-table-width').value = val;
           }
         }
         tgUpdatePreview();
       });
     });
-    document.getElementById('tg-auto-resize').addEventListener('change', function(e) {
-      tgState.autoResize = e.target.checked;
-      tgUpdatePreview();
-    });
+    var autoResizeEl = document.getElementById('tg-auto-resize');
+    if (autoResizeEl) {
+      autoResizeEl.addEventListener('change', function(e) {
+        tgState.autoResize = e.target.checked;
+        tgUpdatePreview();
+      });
+    }
     document.querySelectorAll('.tg-shape-toggle button').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        tgState.shape = btn.dataset.shape;
-        document.querySelectorAll('.tg-shape-toggle button').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        if (tgState.shape === 'round') {
+        var newShape = btn.dataset.shape;
+        if (newShape === tgState.shape) return;
+        if (newShape === 'round') {
+          tgState.chairsTotal = tgState.chairsTop + tgState.chairsBottom + tgState.chairsLeft + tgState.chairsRight;
           var maxDim = Math.max(tgState.tableWidth, tgState.tableHeight);
           tgState.tableWidth = maxDim;
           tgState.tableHeight = maxDim;
-          document.getElementById('tg-table-width').value = maxDim;
-          document.getElementById('tg-table-height').value = maxDim;
+        } else {
+          var half = Math.floor(tgState.chairsTotal / 2);
+          tgState.chairsTop = half;
+          tgState.chairsBottom = tgState.chairsTotal - half;
+          tgState.chairsLeft = 0;
+          tgState.chairsRight = 0;
         }
+        tgState.shape = newShape;
+        renderTGInPropsPanel();
+        tgBindInputs();
+        tgSyncInputs();
         tgUpdatePreview();
       });
     });
@@ -1417,6 +1460,36 @@
     var tw = tgState.tableWidth;
     var th = tgState.tableHeight;
 
+    if (tgState.shape === 'round') {
+      var maxDim = Math.max(tw, th);
+      tw = maxDim;
+      th = maxDim;
+      var table = { x: 0, y: 0, width: tw, height: th };
+      var chairs = [];
+      var totalChairs = tgState.chairsTotal;
+      if (totalChairs > 0) {
+        var tableRadius = tw / 2;
+        var chairHalf = cs / 2;
+        var dist = tableRadius + chairHalf + tgState.gapCircular;
+        var tableCx = tw / 2;
+        var tableCy = th / 2;
+        var angleStep = (2 * Math.PI) / totalChairs;
+        var startAngle = -Math.PI / 2;
+        for (var i = 0; i < totalChairs; i++) {
+          var angle = startAngle + i * angleStep;
+          var cx = tableCx + dist * Math.cos(angle);
+          var cy = tableCy + dist * Math.sin(angle);
+          var angleDeg = angle * (180 / Math.PI) + 90;
+          chairs.push({
+            x: Math.round(cx - cs / 2),
+            y: Math.round(cy - cs / 2),
+            rotation: Math.round(angleDeg)
+          });
+        }
+      }
+      return { table: table, chairs: chairs, totalWidth: tw, totalHeight: th };
+    }
+
     if (tgState.autoResize) {
       var topNeeded = tgState.chairsTop > 0 ? tgState.chairsTop * cs + (tgState.chairsTop - 1) * tgState.gapTop : 0;
       var bottomNeeded = tgState.chairsBottom > 0 ? tgState.chairsBottom * cs + (tgState.chairsBottom - 1) * tgState.gapBottom : 0;
@@ -1425,12 +1498,6 @@
 
       tw = Math.max(tw, Math.max(topNeeded, bottomNeeded));
       th = Math.max(th, Math.max(leftNeeded, rightNeeded));
-
-      if (tgState.shape === 'round') {
-        var maxDim = Math.max(tw, th);
-        tw = maxDim;
-        th = maxDim;
-      }
     }
 
     var table = { x: 0, y: 0, width: tw, height: th };
@@ -1483,7 +1550,9 @@
     var cs = tgState.chairSize;
     var placeX = 200 + tgPlaceCount * 40;
     var placeY = 200 + tgPlaceCount * 40;
-    var totalChairs = tgState.chairsTop + tgState.chairsBottom + tgState.chairsLeft + tgState.chairsRight;
+    var totalChairs = tgState.shape === 'round'
+      ? tgState.chairsTotal
+      : tgState.chairsTop + tgState.chairsBottom + tgState.chairsLeft + tgState.chairsRight;
 
     // Create table directly on the main canvas
     var tableEl = builder.addElementSilent({
