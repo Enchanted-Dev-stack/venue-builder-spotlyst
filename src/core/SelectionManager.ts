@@ -5,6 +5,9 @@ import { HANDLE_SIZE } from '../utils/constants';
 
 export type ResizeHandle = 'nw' | 'ne' | 'sw' | 'se' | null;
 
+const ROTATION_HANDLE_RADIUS = 5;
+const ROTATION_HANDLE_OFFSET = 24;
+
 /**
  * Tracks which canvas elements are currently selected and / or hovered, and
  * renders the selection chrome (dashed border + corner resize handles) on top
@@ -69,6 +72,25 @@ export class SelectionManager {
   // ── Drawing ───────────────────────────────────────────────────────────────
 
   /**
+   * Compute the combined bounding box of all selected elements.
+   */
+  getSelectionBounds(elements: BaseElement[]): { x: number; y: number; width: number; height: number } | null {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let found = false;
+    for (const el of elements) {
+      if (!this.selected.has(el.id)) continue;
+      found = true;
+      const b = el.getBounds();
+      minX = Math.min(minX, b.x);
+      minY = Math.min(minY, b.y);
+      maxX = Math.max(maxX, b.x + b.width);
+      maxY = Math.max(maxY, b.y + b.height);
+    }
+    if (!found) return null;
+    return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+  }
+
+  /**
    * Draw selection indicators (dashed border + corner handles) for every
    * selected element that appears in the provided element list.
    *
@@ -112,6 +134,30 @@ export class SelectionManager {
         ctx.strokeRect(c.hx, c.hy, HANDLE_SIZE, HANDLE_SIZE);
       }
 
+      ctx.restore();
+    }
+
+    // --- Rotation handle (drawn once for the whole selection) ---------------
+    const selBounds = this.getSelectionBounds(elements);
+    if (selBounds) {
+      const handleX = selBounds.x + selBounds.width / 2;
+      const handleY = selBounds.y - ROTATION_HANDLE_OFFSET;
+
+      ctx.save();
+      ctx.strokeStyle = COLORS.selection.border;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(handleX, selBounds.y);
+      ctx.lineTo(handleX, handleY + ROTATION_HANDLE_RADIUS);
+      ctx.stroke();
+
+      ctx.fillStyle = COLORS.selection.handleFill;
+      ctx.strokeStyle = COLORS.selection.handleStroke;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(handleX, handleY, ROTATION_HANDLE_RADIUS, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
       ctx.restore();
     }
   }
@@ -158,5 +204,27 @@ export class SelectionManager {
     }
 
     return null;
+  }
+
+  /**
+   * Test whether the given world-space point hits the rotation handle
+   * above the combined bounding box of all selected elements.
+   */
+  hitTestRotationHandle(
+    worldX: number,
+    worldY: number,
+    elements: BaseElement[],
+  ): boolean {
+    if (this.selected.size === 0) return false;
+    const bounds = this.getSelectionBounds(elements);
+    if (!bounds) return false;
+
+    const handleX = bounds.x + bounds.width / 2;
+    const handleY = bounds.y - ROTATION_HANDLE_OFFSET;
+    const hitRadius = ROTATION_HANDLE_RADIUS + 4;
+
+    const dx = worldX - handleX;
+    const dy = worldY - handleY;
+    return dx * dx + dy * dy <= hitRadius * hitRadius;
   }
 }

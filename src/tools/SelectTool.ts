@@ -7,12 +7,17 @@ import { ELEMENT_MIN_SIZE } from '../utils/constants';
 export class SelectTool extends BaseTool {
   private isDragging: boolean = false;
   private isResizing: boolean = false;
+  private isRotating: boolean = false;
   private hasMoved: boolean = false;
   private dragStartWorld: Point | null = null;
   private dragOriginalPositions: Map<string, { x: number; y: number }> = new Map();
   private activeHandle: ResizeHandle = null;
   private resizeElementId: string | null = null;
   private resizeStartBounds: { x: number; y: number; width: number; height: number } | null = null;
+  private rotationCenter: Point | null = null;
+  private rotationStartAngle: number = 0;
+  private rotationOriginals: Map<string, { x: number; y: number; rotation: number }> = new Map();
+  private isHoveringRotationHandle: boolean = false;
 
   constructor(context: ToolContext) {
     super(context);
@@ -20,12 +25,43 @@ export class SelectTool extends BaseTool {
 
   onMouseDown(worldPos: Point, e: MouseEvent): void {
     const { elementManager, selectionManager, groupManager } = this.ctx;
+    const allElements = elementManager.getAll();
+
+    // Check rotation handle first
+    if (selectionManager.hitTestRotationHandle(worldPos.x, worldPos.y, allElements)) {
+      this.isRotating = true;
+      this.hasMoved = false;
+      this.dragStartWorld = { ...worldPos };
+
+      const bounds = selectionManager.getSelectionBounds(allElements);
+      if (bounds) {
+        this.rotationCenter = {
+          x: bounds.x + bounds.width / 2,
+          y: bounds.y + bounds.height / 2,
+        };
+      }
+
+      if (!this.rotationCenter) return;
+      this.rotationStartAngle = Math.atan2(
+        worldPos.y - this.rotationCenter.y,
+        worldPos.x - this.rotationCenter.x,
+      );
+
+      this.rotationOriginals.clear();
+      for (const id of selectionManager.getSelectedIds()) {
+        const el = elementManager.get(id);
+        if (el) {
+          this.rotationOriginals.set(id, { x: el.x, y: el.y, rotation: el.rotation });
+        }
+      }
+      return;
+    }
 
     // Check if clicking on a resize handle first
     const handleHit = selectionManager.hitTestHandles(
       worldPos.x,
       worldPos.y,
-      elementManager.getAll(),
+      allElements,
     );
 
     if (handleHit) {
@@ -95,8 +131,46 @@ export class SelectTool extends BaseTool {
     }
   }
 
-  onMouseMove(worldPos: Point, _e: MouseEvent): void {
+  onMouseMove(worldPos: Point, e: MouseEvent): void {
     const { elementManager, selectionManager } = this.ctx;
+
+    if (this.isRotating && this.rotationCenter) {
+      this.hasMoved = true;
+      const currentAngle = Math.atan2(
+        worldPos.y - this.rotationCenter.y,
+        worldPos.x - this.rotationCenter.x,
+      );
+      let deltaDeg = (currentAngle - this.rotationStartAngle) * (180 / Math.PI);
+
+      if (e.shiftKey) {
+        deltaDeg = Math.round(deltaDeg / 15) * 15;
+      }
+
+      const deltaRad = deltaDeg * (Math.PI / 180);
+      const cx = this.rotationCenter.x;
+      const cy = this.rotationCenter.y;
+      const cos = Math.cos(deltaRad);
+      const sin = Math.sin(deltaRad);
+
+      for (const [id, orig] of this.rotationOriginals) {
+        const el = elementManager.get(id);
+        if (!el) continue;
+
+        const elCx = orig.x + el.width / 2;
+        const elCy = orig.y + el.height / 2;
+        const dx = elCx - cx;
+        const dy = elCy - cy;
+        const newCx = cx + dx * cos - dy * sin;
+        const newCy = cy + dx * sin + dy * cos;
+
+        el.moveTo(
+          Math.round(newCx - el.width / 2),
+          Math.round(newCy - el.height / 2),
+        );
+        el.rotation = Math.round(orig.rotation + deltaDeg);
+      }
+      return;
+    }
 
     if (this.isResizing && this.dragStartWorld && this.resizeElementId && this.resizeStartBounds) {
       const el = elementManager.get(this.resizeElementId);
@@ -174,21 +248,26 @@ export class SelectTool extends BaseTool {
     }
 
     // Hover detection
+    const allEls = elementManager.getAll();
+    this.isHoveringRotationHandle = selectionManager.hitTestRotationHandle(worldPos.x, worldPos.y, allEls);
     const hit = elementManager.hitTest(worldPos.x, worldPos.y);
     selectionManager.setHovered(hit ? hit.id : null);
   }
 
   onMouseUp(_worldPos: Point, _e: MouseEvent): void {
-    const stateChanged = this.hasMoved && (this.isDragging || this.isResizing);
+    const stateChanged = this.hasMoved && (this.isDragging || this.isResizing || this.isRotating);
 
     this.isDragging = false;
     this.isResizing = false;
+    this.isRotating = false;
     this.hasMoved = false;
     this.dragStartWorld = null;
     this.dragOriginalPositions.clear();
     this.activeHandle = null;
     this.resizeElementId = null;
     this.resizeStartBounds = null;
+    this.rotationCenter = null;
+    this.rotationOriginals.clear();
 
     if (stateChanged) {
       this.ctx.onStateChanged();
@@ -215,6 +294,7 @@ export class SelectTool extends BaseTool {
   }
 
   getCursor(): string {
+    if (this.isRotating || this.isHoveringRotationHandle) return 'crosshair';
     if (this.isResizing) {
       switch (this.activeHandle) {
         case 'nw':

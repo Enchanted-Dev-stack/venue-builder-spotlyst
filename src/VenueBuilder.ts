@@ -243,13 +243,31 @@ export class VenueBuilder {
       (el) => el.type === 'table' && el.metadata.shape === 'round'
     );
     if (!roundTable) return;
+
     const tableCx = roundTable.x + roundTable.width / 2;
     const tableCy = roundTable.y + roundTable.height / 2;
+    const tableRadius = Math.min(roundTable.width, roundTable.height) / 2;
     const chairs = elements.filter((el) => el.type === 'chair');
-    for (const chair of chairs) {
-      const chairCx = chair.x + chair.width / 2;
-      const chairCy = chair.y + chair.height / 2;
-      const angleDeg = Math.atan2(chairCy - tableCy, chairCx - tableCx) * (180 / Math.PI) + 90;
+    if (chairs.length === 0) return;
+
+    const MIN_GAP = 10;
+    const angleStep = (2 * Math.PI) / chairs.length;
+    const startAngle = -Math.PI / 2;
+
+    for (let i = 0; i < chairs.length; i++) {
+      const chair = chairs[i];
+      const chairHalf = Math.max(chair.width, chair.height) / 2;
+      const dist = tableRadius + chairHalf + MIN_GAP;
+      const angle = startAngle + i * angleStep;
+
+      const newCx = tableCx + dist * Math.cos(angle);
+      const newCy = tableCy + dist * Math.sin(angle);
+      chair.moveTo(
+        Math.round(newCx - chair.width / 2),
+        Math.round(newCy - chair.height / 2),
+      );
+
+      const angleDeg = angle * (180 / Math.PI) + 90;
       chair.rotation = Math.round(angleDeg);
     }
   }
