@@ -230,18 +230,27 @@ export class SelectTool extends BaseTool {
       const dx = worldPos.x - this.dragStartWorld.x;
       const dy = worldPos.y - this.dragStartWorld.y;
 
-      // Use original positions + total delta to avoid snap drift
       const effectiveGrid = this.ctx.snapToGrid ? this.getEffectiveGridSize() : 0;
+
+      // Snap a single reference point and apply the same delta to all
+      // elements, preserving their relative positions within a group.
+      let snappedDx = dx;
+      let snappedDy = dy;
+      if (effectiveGrid > 0) {
+        const refEntry = this.dragOriginalPositions.entries().next().value;
+        if (refEntry) {
+          const [, refPos] = refEntry;
+          const refNewX = snapToGrid(refPos.x + dx, effectiveGrid);
+          const refNewY = snapToGrid(refPos.y + dy, effectiveGrid);
+          snappedDx = refNewX - refPos.x;
+          snappedDy = refNewY - refPos.y;
+        }
+      }
+
       for (const [id, origPos] of this.dragOriginalPositions) {
         const el = elementManager.get(id);
         if (el) {
-          let newX = origPos.x + dx;
-          let newY = origPos.y + dy;
-          if (effectiveGrid > 0) {
-            newX = snapToGrid(newX, effectiveGrid);
-            newY = snapToGrid(newY, effectiveGrid);
-          }
-          el.moveTo(newX, newY);
+          el.moveTo(origPos.x + snappedDx, origPos.y + snappedDy);
         }
       }
       return;
