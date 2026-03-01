@@ -119,6 +119,42 @@ export class AddElementTool extends BaseTool {
           height: 10,
           metadata: {},
         };
+      case 'plant':
+        return {
+          width: 40,
+          height: 40,
+          metadata: { label: 'Plant' },
+        };
+      case 'counter':
+        return {
+          width: 140,
+          height: 50,
+          metadata: { label: 'Counter' },
+        };
+      case 'booth':
+        return {
+          width: 100,
+          height: 70,
+          metadata: { label: 'Booth', capacity: 4 },
+        };
+      case 'divider':
+        return {
+          width: 80,
+          height: 8,
+          metadata: { label: 'Divider' },
+        };
+      case 'bar':
+        return {
+          width: 160,
+          height: 40,
+          metadata: { label: 'Bar', stools: 4 },
+        };
+      case 'lamp':
+        return {
+          width: 30,
+          height: 30,
+          metadata: { label: 'Lamp' },
+        };
       default:
         return {
           width: 60,

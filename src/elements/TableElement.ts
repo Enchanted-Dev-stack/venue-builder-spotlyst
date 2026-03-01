@@ -45,6 +45,12 @@ export class TableElement extends BaseElement {
       const cx = this.x + this.width / 2;
       const cy = this.y + this.height / 2;
       const isRound = this.metadata.shape === 'round';
+      const isBlocked = this.metadata.status === 'blocked';
+
+      // Apply faded look for blocked tables
+      if (isBlocked) {
+        ctx.globalAlpha = 0.45;
+      }
 
       // Shadow
       ctx.save();
@@ -100,6 +106,11 @@ export class TableElement extends BaseElement {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(`×${this.metadata.capacity}`, cx, cy + subSize + 2);
+      }
+
+      // Reset alpha before selection outline so it draws at full opacity
+      if (isBlocked) {
+        ctx.globalAlpha = 1;
       }
 
       // Selection / hover outline

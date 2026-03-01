@@ -177,6 +177,24 @@ export class VenueBuilder {
       case 'addWindow':
         tool = new AddElementTool(toolContext, 'window');
         break;
+      case 'addPlant':
+        tool = new AddElementTool(toolContext, 'plant');
+        break;
+      case 'addCounter':
+        tool = new AddElementTool(toolContext, 'counter');
+        break;
+      case 'addBooth':
+        tool = new AddElementTool(toolContext, 'booth');
+        break;
+      case 'addDivider':
+        tool = new AddElementTool(toolContext, 'divider');
+        break;
+      case 'addBar':
+        tool = new AddElementTool(toolContext, 'bar');
+        break;
+      case 'addLamp':
+        tool = new AddElementTool(toolContext, 'lamp');
+        break;
     }
 
     this.interactionManager.setTool(tool);
@@ -339,6 +357,17 @@ export class VenueBuilder {
     }
   }
 
+  /** Show or hide the background grid. */
+  setShowGrid(show: boolean): void {
+    this.options.showGrid = show;
+    this.markDirty();
+  }
+
+  /** Returns whether the grid is currently visible. */
+  getShowGrid(): boolean {
+    return this.options.showGrid;
+  }
+
   // === Private Methods ===
 
   private deleteSelected(): void {
@@ -405,6 +434,31 @@ export class VenueBuilder {
 
     // Draw elements
     const elements = this.elementManager.getAll();
+
+    // Propagate table booking status colors to grouped chairs
+    for (const el of elements) {
+      if (el.type === 'chair') {
+        delete el.metadata._statusColor;
+      }
+    }
+    for (const group of this.groupManager.getAllGroups()) {
+      const members = this.groupManager.getGroupElements(group.id, elements);
+      const table = members.find((el) => el.type === 'table');
+      if (!table) continue;
+      const status = table.metadata.status as string;
+      if (!status || !(status in COLORS.status)) continue;
+      const colors = COLORS.status[status as keyof typeof COLORS.status];
+      for (const el of members) {
+        if (el.type === 'chair') {
+          el.metadata._statusColor = {
+            fill: colors.fill,
+            stroke: colors.stroke,
+            blocked: status === 'blocked',
+          };
+        }
+      }
+    }
+
     for (const element of elements) {
       const isSelected = this.selectionManager.isSelected(element.id);
       const isHovered = this.selectionManager.isHovered(element.id);
@@ -459,10 +513,23 @@ export class VenueBuilder {
       if (preview) {
         this.ctx.save();
         this.ctx.globalAlpha = 0.4;
-        const size = preview.type === 'chair' ? 30 : preview.type === 'table' ? 80 : 40;
+        let w: number, h: number;
+        switch (preview.type) {
+          case 'chair': w = 30; h = 30; break;
+          case 'table': w = 80; h = 80; break;
+          case 'door': w = 40; h = 10; break;
+          case 'window': w = 60; h = 10; break;
+          case 'plant': w = 40; h = 40; break;
+          case 'counter': w = 140; h = 50; break;
+          case 'booth': w = 100; h = 70; break;
+          case 'divider': w = 80; h = 8; break;
+          case 'bar': w = 160; h = 40; break;
+          case 'lamp': w = 30; h = 30; break;
+          default: w = 60; h = 60;
+        }
         this.ctx.fillStyle = COLORS.ui.primary;
         this.ctx.beginPath();
-        this.ctx.roundRect(preview.x - size/2, preview.y - size/2, size, size, 8);
+        this.ctx.roundRect(preview.x - w/2, preview.y - h/2, w, h, 8);
         this.ctx.fill();
         this.ctx.restore();
       }

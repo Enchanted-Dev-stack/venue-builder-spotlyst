@@ -29,11 +29,17 @@ export class ChairElement extends BaseElement {
   draw(ctx: CanvasRenderingContext2D, isSelected: boolean, isHovered: boolean): void {
     this.withRotation(ctx, () => {
       const statusOverride = this.metadata._statusColor as
-        | { fill: string; stroke: string }
+        | { fill: string; stroke: string; blocked?: boolean }
         | undefined;
 
       const fillColor = statusOverride?.fill ?? COLORS.elements.chairFill;
       const strokeColor = statusOverride?.stroke ?? COLORS.elements.chairStroke;
+      const isBlocked = statusOverride?.blocked === true;
+
+      // Apply faded look for blocked chairs (matching grouped table)
+      if (isBlocked) {
+        ctx.globalAlpha = 0.45;
+      }
 
       // Shadow
       ctx.save();
@@ -67,6 +73,11 @@ export class ChairElement extends BaseElement {
       ctx.lineTo(this.x + this.width - inset, backY);
       ctx.stroke();
       ctx.lineCap = 'butt';
+
+      // Reset alpha before selection outline so it draws at full opacity
+      if (isBlocked) {
+        ctx.globalAlpha = 1;
+      }
 
       // Selection / hover outline
       this.drawSelectionOutline(ctx, isSelected, isHovered);

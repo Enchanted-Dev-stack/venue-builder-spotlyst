@@ -1,7 +1,7 @@
-export type ElementType = 'table' | 'chair' | 'wall' | 'door' | 'window';
+export type ElementType = 'table' | 'chair' | 'wall' | 'door' | 'window' | 'plant' | 'counter' | 'booth' | 'divider' | 'bar' | 'lamp';
 export type TableShape = 'rectangle' | 'round';
 export type BookingStatus = 'available' | 'reserved' | 'occupied' | 'blocked';
-export type ToolType = 'select' | 'addTable' | 'addChair' | 'addWall' | 'addDoor' | 'addWindow';
+export type ToolType = 'select' | 'addTable' | 'addChair' | 'addWall' | 'addDoor' | 'addWindow' | 'addPlant' | 'addCounter' | 'addBooth' | 'addDivider' | 'addBar' | 'addLamp';
 
 export interface Point {
   x: number;

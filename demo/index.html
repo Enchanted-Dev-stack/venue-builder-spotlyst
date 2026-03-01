@@ -782,6 +782,39 @@
 
     <div class="sidebar-divider"></div>
 
+    <!-- Decorative & Venue -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Venue & Decor</div>
+      <div class="sidebar-btn-grid cols-3">
+        <button class="sidebar-btn" id="tool-counter" data-tool="addCounter" data-tooltip="Counter · K">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="1" y="5" width="18" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="7" width="4" height="3" rx="1" stroke="currentColor" stroke-width="1" opacity="0.5"/><rect x="13" y="7" width="4" height="3" rx="1" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>
+          <span>Counter</span>
+        </button>
+        <button class="sidebar-btn" id="tool-bar" data-tool="addBar" data-tooltip="Bar · B">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="1" y="4" width="18" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="16" r="2" stroke="currentColor" stroke-width="1"/><circle cx="10" cy="16" r="2" stroke="currentColor" stroke-width="1"/><circle cx="15" cy="16" r="2" stroke="currentColor" stroke-width="1"/></svg>
+          <span>Bar</span>
+        </button>
+        <button class="sidebar-btn" id="tool-booth" data-tool="addBooth" data-tooltip="Booth · H">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M5 4v10M15 4v10M5 14h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/></svg>
+          <span>Booth</span>
+        </button>
+        <button class="sidebar-btn" id="tool-plant" data-tool="addPlant" data-tooltip="Plant · P">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><ellipse cx="10" cy="6" rx="2" ry="3.5" fill="currentColor" opacity="0.3"/><ellipse cx="6.5" cy="12" rx="2" ry="3.5" transform="rotate(-120 6.5 12)" fill="currentColor" opacity="0.3"/><ellipse cx="13.5" cy="12" rx="2" ry="3.5" transform="rotate(120 13.5 12)" fill="currentColor" opacity="0.3"/></svg>
+          <span>Plant</span>
+        </button>
+        <button class="sidebar-btn" id="tool-lamp" data-tool="addLamp" data-tooltip="Lamp · L">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="0.75" stroke-dasharray="2 2" opacity="0.4"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/></svg>
+          <span>Lamp</span>
+        </button>
+        <button class="sidebar-btn" id="tool-divider" data-tool="addDivider" data-tooltip="Divider · I">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="8" width="16" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><line x1="7" y1="8" x2="7" y2="12" stroke="currentColor" stroke-width="1" opacity="0.4"/><line x1="13" y1="8" x2="13" y2="12" stroke="currentColor" stroke-width="1" opacity="0.4"/></svg>
+          <span>Divider</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
     <!-- Generator -->
     <div class="sidebar-section">
       <div class="sidebar-section-title">Generator</div>
@@ -804,6 +837,10 @@
         <svg viewBox="0 0 20 20" fill="none"><rect x="1" y="1" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 11l6-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Ungroup
       </button>
+      <button class="sidebar-action-btn" id="btn-toggle-grid" data-tooltip="Toggle Grid · Shift+G">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M1 1h18v18H1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7" y1="1" x2="7" y2="19" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="13" y1="1" x2="13" y2="19" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="1" y1="7" x2="19" y2="7" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="1" y1="13" x2="19" y2="13" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>
+        Hide Grid
+      </button>
     </div>
 
     <div class="sidebar-divider"></div>
@@ -812,26 +849,26 @@
     <div class="sidebar-section">
       <div class="sidebar-section-title">Set Table Status</div>
       <button class="status-btn" data-status="available" data-tooltip="Set Available">
-        <span class="status-dot" style="background:#10B981"></span> Available
+        <span class="status-dot" style="background:#94A3B8"></span> Available
       </button>
       <button class="status-btn" data-status="reserved" data-tooltip="Set Reserved">
-        <span class="status-dot" style="background:#F59E0B"></span> Reserved
+        <span class="status-dot" style="background:#F97316"></span> Reserved
       </button>
       <button class="status-btn" data-status="occupied" data-tooltip="Set Occupied">
-        <span class="status-dot" style="background:#EF4444"></span> Occupied
+        <span class="status-dot" style="background:#3B82F6"></span> Occupied
       </button>
       <button class="status-btn" data-status="blocked" data-tooltip="Set Blocked">
-        <span class="status-dot" style="background:#9CA3AF"></span> Blocked
+        <span class="status-dot" style="background:#D1D5DB"></span> Blocked
       </button>
     </div>
 
     <!-- Legend -->
     <div class="sidebar-legend">
       <div class="sidebar-legend-title">Status Legend</div>
-      <div class="legend-item"><span class="status-dot" style="background:#10B981"></span> Available — Open for booking</div>
-      <div class="legend-item"><span class="status-dot" style="background:#F59E0B"></span> Reserved — Booked ahead</div>
-      <div class="legend-item"><span class="status-dot" style="background:#EF4444"></span> Occupied — Currently in use</div>
-      <div class="legend-item"><span class="status-dot" style="background:#9CA3AF"></span> Blocked — Not available</div>
+      <div class="legend-item"><span class="status-dot" style="background:#94A3B8"></span> Available — Open for booking</div>
+      <div class="legend-item"><span class="status-dot" style="background:#F97316"></span> Reserved — Booked ahead</div>
+      <div class="legend-item"><span class="status-dot" style="background:#3B82F6"></span> Occupied — Currently in use</div>
+      <div class="legend-item"><span class="status-dot" style="background:#D1D5DB"></span> Blocked — Not available</div>
     </div>
   </aside>
 
@@ -1007,6 +1044,16 @@
   builder.addElement({ type: 'door', x: 300, y: 40, width: 50, height: 10, metadata: {} });
   builder.addElement({ type: 'window', x: 550, y: 40, width: 80, height: 10, metadata: {} });
 
+  // Decorative & venue elements
+  builder.addElement({ type: 'plant', x: 70, y: 70, width: 40, height: 40, metadata: { label: 'Plant' } });
+  builder.addElement({ type: 'plant', x: 700, y: 70, width: 40, height: 40, metadata: { label: 'Plant' } });
+  builder.addElement({ type: 'counter', x: 100, y: 440, width: 160, height: 50, metadata: { label: 'Reception' } });
+  builder.addElement({ type: 'booth', x: 400, y: 440, width: 110, height: 80, metadata: { label: 'Booth 1', capacity: 4 } });
+  builder.addElement({ type: 'bar', x: 550, y: 220, width: 180, height: 40, metadata: { label: 'Bar', stools: 5 } });
+  builder.addElement({ type: 'lamp', x: 80, y: 240, width: 28, height: 28, metadata: { label: 'Lamp' } });
+  builder.addElement({ type: 'lamp', x: 700, y: 340, width: 28, height: 28, metadata: { label: 'Lamp' } });
+  builder.addElement({ type: 'divider', x: 380, y: 300, width: 90, height: 8, metadata: { label: 'Divider' } });
+
   // ── Tool name map ──────────────────────────────────────────────────────
   const toolNames = {
     select: 'Select',
@@ -1015,6 +1062,12 @@
     addChair: 'Add Chair',
     addDoor: 'Add Door',
     addWindow: 'Add Window',
+    addPlant: 'Add Plant',
+    addCounter: 'Add Counter',
+    addBooth: 'Add Booth',
+    addDivider: 'Add Divider',
+    addBar: 'Add Bar',
+    addLamp: 'Add Lamp',
   };
 
   // ── Wire up sidebar tool buttons ───────────────────────────────────────
@@ -1050,6 +1103,14 @@
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
 
+    // Shift+G = toggle grid
+    if (e.shiftKey && e.key.toLowerCase() === 'g') {
+      builder.setShowGrid(!builder.getShowGrid());
+      updateGridBtn();
+      return;
+    }
+    if (e.shiftKey) return;
+
     switch(e.key.toLowerCase()) {
       case 'v': setActiveTool('select'); break;
       case 'w': setActiveTool('addWall'); break;
@@ -1058,6 +1119,12 @@
       case 'c': setActiveTool('addChair'); break;
       case 'd': setActiveTool('addDoor'); break;
       case 'n': setActiveTool('addWindow'); break;
+      case 'p': setActiveTool('addPlant'); break;
+      case 'k': setActiveTool('addCounter'); break;
+      case 'h': setActiveTool('addBooth'); break;
+      case 'i': setActiveTool('addDivider'); break;
+      case 'b': setActiveTool('addBar'); break;
+      case 'l': setActiveTool('addLamp'); break;
       case 'g': openTGModal(); break;
     }
   });
@@ -1080,6 +1147,23 @@
   // ── Group / Ungroup ────────────────────────────────────────────────────
   document.getElementById('btn-group').addEventListener('click', () => builder.groupSelected());
   document.getElementById('btn-ungroup').addEventListener('click', () => builder.ungroupSelected());
+
+  // ── Grid toggle ───────────────────────────────────────────────────────
+  const gridBtn = document.getElementById('btn-toggle-grid');
+  function updateGridBtn() {
+    const on = builder.getShowGrid();
+    gridBtn.textContent = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 20 20');
+    svg.setAttribute('fill', 'none');
+    svg.innerHTML = '<path d="M1 1h18v18H1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="7" y1="1" x2="7" y2="19" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="13" y1="1" x2="13" y2="19" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="1" y1="7" x2="19" y2="7" stroke="currentColor" stroke-width="1" opacity="0.5"/><line x1="1" y1="13" x2="19" y2="13" stroke="currentColor" stroke-width="1" opacity="0.5"/>';
+    gridBtn.appendChild(svg);
+    gridBtn.appendChild(document.createTextNode(on ? ' Hide Grid' : ' Show Grid'));
+  }
+  gridBtn.addEventListener('click', () => {
+    builder.setShowGrid(!builder.getShowGrid());
+    updateGridBtn();
+  });
 
   // ── Status buttons ─────────────────────────────────────────────────────
   document.querySelectorAll('.status-btn[data-status]').forEach(btn => {
@@ -1636,10 +1720,10 @@
 
   function getStatusBadgeHTML(status) {
     const colors = {
-      available: { bg: '#ECFDF5', fg: '#059669', dot: '#10B981' },
-      reserved: { bg: '#FFFBEB', fg: '#B45309', dot: '#F59E0B' },
-      occupied: { bg: '#FEF2F2', fg: '#DC2626', dot: '#EF4444' },
-      blocked: { bg: '#F3F4F6', fg: '#6B7280', dot: '#9CA3AF' },
+      available: { bg: '#F1F5F9', fg: '#64748B', dot: '#94A3B8' },
+      reserved: { bg: '#FFF7ED', fg: '#C2410C', dot: '#F97316' },
+      occupied: { bg: '#EFF6FF', fg: '#1D4ED8', dot: '#3B82F6' },
+      blocked: { bg: '#F9FAFB', fg: '#9CA3AF', dot: '#D1D5DB' },
     };
     const c = colors[status] || colors.available;
     return `<span class="prop-badge" style="background:${c.bg};color:${c.fg}"><span class="prop-badge-dot" style="background:${c.dot}"></span>${status}</span>`;
@@ -1702,7 +1786,7 @@
           <select class="prop-select" data-meta="status">
             <option value="available" ${meta.status === 'available' ? 'selected' : ''}>✅ Available</option>
             <option value="reserved" ${meta.status === 'reserved' ? 'selected' : ''}>🟡 Reserved</option>
-            <option value="occupied" ${meta.status === 'occupied' ? 'selected' : ''}>🔴 Occupied</option>
+            <option value="occupied" ${meta.status === 'occupied' ? 'selected' : ''}>🔵 Occupied</option>
             <option value="blocked" ${meta.status === 'blocked' ? 'selected' : ''}>⬜ Blocked</option>
           </select>
         </div>
