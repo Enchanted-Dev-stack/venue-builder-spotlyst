@@ -81,6 +81,17 @@ export interface GroupData {
   };
 }
 
+export type FloorAreaType = 'floor' | 'area';
+
+export interface FloorData {
+  id: string;
+  name: string;
+  type: FloorAreaType;
+  order: number;
+  elements: ElementData[];
+  groups: GroupData[];
+}
+
 export interface LayoutData {
   version: string;
   canvas: {
@@ -90,6 +101,8 @@ export interface LayoutData {
   };
   elements: ElementData[];
   groups: GroupData[];
+  floors?: FloorData[];
+  activeFloorId?: string;
 }
 
 export interface VenueBuilderOptions {
@@ -110,4 +123,8 @@ export interface BuilderEvent {
   toolChanged: { tool: ToolType };
   groupCreated: { group: GroupData };
   groupRemoved: { group: GroupData };
+  floorChanged: { floor: FloorData };
+  floorAdded: { floor: FloorData };
+  floorRemoved: { floor: FloorData };
+  floorRenamed: { floor: FloorData };
 }

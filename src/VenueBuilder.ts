@@ -1,4 +1,4 @@
-import { Camera, Grid, ElementManager, SelectionManager, HistoryManager, GroupManager } from './core';
+import { Camera, Grid, ElementManager, SelectionManager, HistoryManager, GroupManager, FloorManager } from './core';
 import { InteractionManager } from './core/InteractionManager';
 import { EventEmitter } from './events/EventEmitter';
 import { Serializer } from './serializer/Serializer';
@@ -11,7 +11,7 @@ import { COLORS } from './theme/colors';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, DEFAULT_GRID_SIZE } from './utils/constants';
 import {
   VenueBuilderOptions, ToolType, ElementData, LayoutData, GroupData,
-  BuilderEvent, TableShape
+  BuilderEvent, TableShape, FloorData, FloorAreaType
 } from './core/types';
 
 export class VenueBuilder {
@@ -24,6 +24,7 @@ export class VenueBuilder {
   private selectionManager: SelectionManager;
   private historyManager: HistoryManager;
   private groupManager: GroupManager;
+  private floorManager: FloorManager;
   private interactionManager: InteractionManager;
   private emitter: EventEmitter<BuilderEvent>;
   private options: Required<VenueBuilderOptions>;
@@ -67,6 +68,10 @@ export class VenueBuilder {
     this.selectionManager = new SelectionManager();
     this.historyManager = new HistoryManager();
     this.groupManager = new GroupManager();
+    this.floorManager = new FloorManager();
+
+    // Create the default floor
+    this.floorManager.createFloor('Floor 1', 'floor');
 
     // Initialize interaction manager
     this.interactionManager = new InteractionManager(this.canvas, this.camera, () => this.markDirty());
@@ -206,17 +211,45 @@ export class VenueBuilder {
   getToolType(): ToolType { return this.currentToolType; }
 
   toJSON(): LayoutData {
+    // Save current canvas state into the active floor first
+    this.floorManager.saveFloorState(
+      this.elementManager.toData(),
+      this.groupManager.toData(),
+    );
+
+    const { floors, activeFloorId } = this.floorManager.toData();
+
     return Serializer.serialize(
       this.elementManager.toData(),
       this.groupManager.toData(),
-      { width: this.options.width, height: this.options.height, gridSize: this.options.gridSize }
+      { width: this.options.width, height: this.options.height, gridSize: this.options.gridSize },
+      floors,
+      activeFloorId,
     );
   }
 
   loadJSON(data: LayoutData): void {
-    const { elements, groups, canvas } = Serializer.deserialize(data);
-    this.elementManager.loadFromData(elements);
-    this.groupManager.loadFromData(groups);
+    const { elements, groups, canvas, floors, activeFloorId } = Serializer.deserialize(data);
+
+    // Load floors if present
+    if (floors && floors.length > 0) {
+      this.floorManager.loadFromData(floors, activeFloorId);
+      // Load the active floor's data into the canvas
+      const active = this.floorManager.getActiveFloor();
+      if (active) {
+        this.elementManager.loadFromData(active.elements);
+        this.groupManager.loadFromData(active.groups);
+      }
+    } else {
+      // Legacy single-floor data — put everything into the default floor
+      this.floorManager.clear();
+      const floor = this.floorManager.createFloor('Floor 1', 'floor');
+      floor.elements = elements;
+      floor.groups = groups;
+      this.elementManager.loadFromData(elements);
+      this.groupManager.loadFromData(groups);
+    }
+
     if (canvas) {
       this.options.width = canvas.width;
       this.options.height = canvas.height;
@@ -368,7 +401,86 @@ export class VenueBuilder {
     return this.options.showGrid;
   }
 
+  // === Floor / Area API ===
+
+  /** Add a new floor or area. Returns the created FloorData. */
+  addFloor(name: string, type: FloorAreaType = 'floor'): FloorData {
+    const floor = this.floorManager.createFloor(name, type);
+    this.emitter.emit('floorAdded', { floor });
+    return floor;
+  }
+
+  /** Remove a floor/area by id. Cannot remove the last remaining floor. */
+  removeFloor(floorId: string): boolean {
+    const floor = this.floorManager.getFloor(floorId);
+    if (!floor) return false;
+    const wasActive = this.floorManager.getActiveFloorId() === floorId;
+    const removed = this.floorManager.removeFloor(floorId);
+    if (!removed) return false;
+
+    this.emitter.emit('floorRemoved', { floor });
+
+    // If we just removed the active floor, load the new active floor
+    if (wasActive) {
+      const newActive = this.floorManager.getActiveFloor();
+      if (newActive) {
+        this.loadFloorIntoCanvas(newActive);
+        this.emitter.emit('floorChanged', { floor: newActive });
+      }
+    }
+    return true;
+  }
+
+  /** Switch to a different floor/area. Saves current state first. */
+  switchFloor(floorId: string): boolean {
+    if (floorId === this.floorManager.getActiveFloorId()) return true;
+
+    // Save current canvas into the outgoing floor
+    this.floorManager.saveFloorState(
+      this.elementManager.toData(),
+      this.groupManager.toData(),
+    );
+
+    const floor = this.floorManager.switchFloor(floorId);
+    if (!floor) return false;
+
+    this.loadFloorIntoCanvas(floor);
+    this.emitter.emit('floorChanged', { floor });
+    return true;
+  }
+
+  /** Rename a floor/area. */
+  renameFloor(floorId: string, name: string): void {
+    this.floorManager.renameFloor(floorId, name);
+    const floor = this.floorManager.getFloor(floorId);
+    if (floor) this.emitter.emit('floorRenamed', { floor });
+  }
+
+  /** Get all floors/areas in order. */
+  getFloors(): FloorData[] {
+    // Make sure the active floor has the latest canvas state
+    this.floorManager.saveFloorState(
+      this.elementManager.toData(),
+      this.groupManager.toData(),
+    );
+    return this.floorManager.getOrderedFloors();
+  }
+
+  /** Get the currently active floor id. */
+  getActiveFloorId(): string {
+    return this.floorManager.getActiveFloorId();
+  }
+
   // === Private Methods ===
+
+  private loadFloorIntoCanvas(floor: FloorData): void {
+    this.elementManager.loadFromData(floor.elements);
+    this.groupManager.loadFromData(floor.groups);
+    this.selectionManager.clearSelection();
+    this.historyManager.clear();
+    this.saveHistory();
+    this.markDirty();
+  }
 
   private deleteSelected(): void {
     const selectedIds = this.selectionManager.getSelectedIds();

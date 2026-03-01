@@ -6,4 +6,5 @@ export { SelectionManager } from './SelectionManager';
 export type { ResizeHandle } from './SelectionManager';
 export { HistoryManager } from './HistoryManager';
 export { GroupManager } from './GroupManager';
+export { FloorManager } from './FloorManager';
 export { InteractionManager } from './InteractionManager';

@@ -142,6 +142,64 @@
   }
   .sidebar-action-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
+  /* Floor / Area tabs */
+  .floor-panel { padding: 10px 14px 4px; }
+  .floor-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px; padding: 0 4px;
+  }
+  .floor-panel-header span {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
+    text-transform: uppercase; color: #64748B;
+  }
+  .floor-add-btns { display: flex; gap: 4px; }
+  .floor-add-btn {
+    background: #334155; border: none; border-radius: 4px;
+    color: #94A3B8; cursor: pointer; font-size: 10px;
+    padding: 2px 8px; font-family: inherit; font-weight: 500;
+    transition: all 0.15s ease;
+  }
+  .floor-add-btn:hover { background: #475569; color: #F1F5F9; }
+
+  .floor-list { display: flex; flex-direction: column; gap: 2px; }
+  .floor-tab {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; background: transparent;
+    border: 1px solid transparent; border-radius: 6px;
+    color: #94A3B8; cursor: pointer; font-family: inherit;
+    font-size: 12px; font-weight: 500; transition: all 0.15s ease;
+    position: relative;
+  }
+  .floor-tab:hover { background: #334155; color: #CBD5E1; }
+  .floor-tab.active {
+    background: #334155; color: #F1F5F9;
+    border-color: #4F46E5;
+  }
+  .floor-tab-icon {
+    width: 18px; height: 18px; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 11px; background: #475569; border-radius: 4px;
+    color: #E2E8F0; flex-shrink: 0;
+  }
+  .floor-tab.active .floor-tab-icon { background: #4F46E5; }
+  .floor-tab-name { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .floor-tab-type {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: #64748B; padding: 1px 5px; background: #1E293B;
+    border-radius: 3px;
+  }
+  .floor-tab-actions {
+    display: none; gap: 2px; margin-left: auto;
+  }
+  .floor-tab:hover .floor-tab-actions { display: flex; }
+  .floor-tab-action {
+    background: none; border: none; cursor: pointer;
+    color: #64748B; font-size: 12px; padding: 0 2px;
+    line-height: 1; transition: color 0.15s;
+  }
+  .floor-tab-action:hover { color: #F1F5F9; }
+  .floor-tab-action.danger:hover { color: #EF4444; }
+
   /* Status buttons */
   .status-btn {
     display: flex;
@@ -736,6 +794,20 @@
       <span>v1.0</span>
     </div>
 
+    <!-- Floor / Area panel -->
+    <div class="floor-panel" id="floor-panel">
+      <div class="floor-panel-header">
+        <span>Floors &amp; Areas</span>
+        <div class="floor-add-btns">
+          <button class="floor-add-btn" id="btn-add-floor" title="Add Floor">+ Floor</button>
+          <button class="floor-add-btn" id="btn-add-area" title="Add Area">+ Area</button>
+        </div>
+      </div>
+      <div class="floor-list" id="floor-list"></div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
     <!-- Tools -->
     <div class="sidebar-section">
       <div class="sidebar-section-title">Tools</div>
@@ -1164,6 +1236,113 @@
     builder.setShowGrid(!builder.getShowGrid());
     updateGridBtn();
   });
+
+  // ── Floor / Area management ───────────────────────────────────────────
+  const floorList = document.getElementById('floor-list');
+  let floorCounter = 1;
+  let areaCounter = 0;
+
+  function renderFloorTabs() {
+    const floors = builder.getFloors();
+    const activeId = builder.getActiveFloorId();
+    floorList.innerHTML = '';
+
+    floors.forEach(function(f, idx) {
+      const tab = document.createElement('div');
+      tab.className = 'floor-tab' + (f.id === activeId ? ' active' : '');
+      tab.dataset.floorId = f.id;
+
+      const icon = document.createElement('span');
+      icon.className = 'floor-tab-icon';
+      icon.textContent = f.type === 'floor' ? (idx + 1) + '' : 'A';
+      tab.appendChild(icon);
+
+      const name = document.createElement('span');
+      name.className = 'floor-tab-name';
+      name.textContent = f.name;
+      tab.appendChild(name);
+
+      const typeTag = document.createElement('span');
+      typeTag.className = 'floor-tab-type';
+      typeTag.textContent = f.type;
+      tab.appendChild(typeTag);
+
+      const actions = document.createElement('span');
+      actions.className = 'floor-tab-actions';
+
+      // Rename button
+      const renameBtn = document.createElement('button');
+      renameBtn.className = 'floor-tab-action';
+      renameBtn.title = 'Rename';
+      renameBtn.innerHTML = '&#9998;';
+      renameBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var newName = prompt('Rename floor/area:', f.name);
+        if (newName && newName.trim()) {
+          builder.renameFloor(f.id, newName.trim());
+          renderFloorTabs();
+        }
+      });
+      actions.appendChild(renameBtn);
+
+      // Delete button (only if more than 1 floor)
+      if (floors.length > 1) {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'floor-tab-action danger';
+        delBtn.title = 'Remove';
+        delBtn.innerHTML = '&times;';
+        delBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (confirm('Remove "' + f.name + '"? All elements on this floor/area will be lost.')) {
+            builder.removeFloor(f.id);
+            renderFloorTabs();
+          }
+        });
+        actions.appendChild(delBtn);
+      }
+
+      tab.appendChild(actions);
+
+      // Click to switch
+      tab.addEventListener('click', function() {
+        if (f.id === builder.getActiveFloorId()) return;
+        builder.switchFloor(f.id);
+        renderFloorTabs();
+      });
+
+      floorList.appendChild(tab);
+    });
+  }
+
+  document.getElementById('btn-add-floor').addEventListener('click', function() {
+    floorCounter++;
+    builder.addFloor('Floor ' + floorCounter, 'floor');
+    // Auto-switch to the new floor
+    var floors = builder.getFloors();
+    var newest = floors[floors.length - 1];
+    builder.switchFloor(newest.id);
+    renderFloorTabs();
+  });
+
+  document.getElementById('btn-add-area').addEventListener('click', function() {
+    areaCounter++;
+    var defaultNames = ['Garden', 'Patio', 'Rooftop', 'Terrace', 'Lounge', 'Bar Area', 'VIP', 'Private Room'];
+    var name = areaCounter <= defaultNames.length ? defaultNames[areaCounter - 1] : 'Area ' + areaCounter;
+    builder.addFloor(name, 'area');
+    var floors = builder.getFloors();
+    var newest = floors[floors.length - 1];
+    builder.switchFloor(newest.id);
+    renderFloorTabs();
+  });
+
+  // Initial render
+  renderFloorTabs();
+
+  // Re-render tabs when floor events fire
+  builder.on('floorChanged', renderFloorTabs);
+  builder.on('floorAdded', renderFloorTabs);
+  builder.on('floorRemoved', renderFloorTabs);
+  builder.on('floorRenamed', renderFloorTabs);
 
   // ── Status buttons ─────────────────────────────────────────────────────
   document.querySelectorAll('.status-btn[data-status]').forEach(btn => {
