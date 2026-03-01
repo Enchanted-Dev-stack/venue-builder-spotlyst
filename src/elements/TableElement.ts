@@ -89,23 +89,81 @@ export class TableElement extends BaseElement {
           ? `T${this.metadata.tableNumber}`
           : this.metadata.label ?? `${this.metadata.capacity ?? ''}`;
 
+      // Determine if there's a customer name to show
+      const customerName = this.metadata.customerName as string | undefined;
+      const hasCustomer = customerName && customerName.trim().length > 0;
+
+      // Adjust label vertical position when customer name is present on round tables
+      const labelOffsetY = (hasCustomer && isRound) ? -6 : 0;
+
       if (label) {
         const fontSize = Math.min(14, Math.min(this.width, this.height) * 0.28);
         ctx.fillStyle = COLORS.text.body;
         ctx.font = `600 ${fontSize}px ${FONT_FAMILY}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(label, cx, cy);
+        ctx.fillText(label, cx, cy + labelOffsetY);
       }
 
       // Capacity subtitle (only when table number is shown)
-      if (this.metadata.tableNumber != null && this.metadata.capacity != null) {
+      if (this.metadata.tableNumber != null && this.metadata.capacity != null && !hasCustomer) {
         const subSize = Math.min(10, Math.min(this.width, this.height) * 0.18);
         ctx.fillStyle = COLORS.text.caption;
         ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(`×${this.metadata.capacity}`, cx, cy + subSize + 2);
+      }
+
+      // Customer name
+      if (hasCustomer) {
+        const maxNameLen = isRound
+          ? Math.floor(this.width / 7)
+          : Math.floor((this.width - 12) / 6);
+        const truncated = customerName!.length > maxNameLen
+          ? customerName!.substring(0, maxNameLen - 1) + '…'
+          : customerName!;
+
+        if (isRound) {
+          // Round table: customer name centered below the label
+          const nameSize = Math.min(10, Math.min(this.width, this.height) * 0.17);
+          ctx.fillStyle = stroke; // use the status stroke color for emphasis
+          ctx.font = `500 ${nameSize}px ${FONT_FAMILY}`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(truncated, cx, cy + 8);
+        } else {
+          // Rectangular table: customer name at bottom-left corner
+          const nameSize = Math.min(10, Math.min(this.width, this.height) * 0.18);
+          const nameX = this.x + 6;
+          const nameY = this.y + this.height - 6;
+          ctx.fillStyle = stroke;
+          ctx.font = `500 ${nameSize}px ${FONT_FAMILY}`;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(truncated, nameX, nameY);
+        }
+      }
+
+      // Booking time slot indicator (small text, top-right for rect, below name for round)
+      const bookingStart = this.metadata.bookingStart as string | undefined;
+      const bookingEnd = this.metadata.bookingEnd as string | undefined;
+      if (bookingStart) {
+        const timeStr = bookingEnd ? `${bookingStart}–${bookingEnd}` : bookingStart;
+        const timeSize = Math.min(8, Math.min(this.width, this.height) * 0.14);
+        ctx.fillStyle = COLORS.text.light;
+        ctx.font = `400 ${timeSize}px ${FONT_FAMILY}`;
+
+        if (isRound) {
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const timeY = hasCustomer ? cy + 18 : cy + 12;
+          ctx.fillText(timeStr, cx, timeY);
+        } else {
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'top';
+          ctx.fillText(timeStr, this.x + this.width - 5, this.y + 4);
+        }
       }
 
       // Reset alpha before selection outline so it draws at full opacity

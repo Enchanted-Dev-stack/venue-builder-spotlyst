@@ -471,6 +471,95 @@ export class VenueBuilder {
     return this.floorManager.getActiveFloorId();
   }
 
+  // === Booking API ===
+
+  /**
+   * Bulk-apply bookings to all bookable elements on the *current* floor.
+   *
+   * Each entry identifies a table/booth by `elementId` **or** `tableNumber`
+   * and sets its status, customer name, and time window.  Elements not
+   * mentioned in the array are reset to `available` with no customer.
+   *
+   * This is the main method front-end apps should call when the time slot
+   * changes — pass the bookings that overlap the current time and the
+   * canvas will update instantly.
+   */
+  applyBookings(bookings: Array<{
+    elementId?: string;
+    tableNumber?: number;
+    status: 'available' | 'reserved' | 'occupied' | 'blocked';
+    customerName?: string;
+    bookingStart?: string;
+    bookingEnd?: string;
+    reservationId?: string;
+  }>): void {
+    const elements = this.elementManager.getAll();
+    const bookableTypes = new Set(['table', 'booth']);
+
+    // Build lookup maps for fast matching
+    const byId = new Map<string, typeof bookings[0]>();
+    const byTableNum = new Map<number, typeof bookings[0]>();
+    for (const b of bookings) {
+      if (b.elementId) byId.set(b.elementId, b);
+      if (b.tableNumber != null) byTableNum.set(b.tableNumber, b);
+    }
+
+    for (const el of elements) {
+      if (!bookableTypes.has(el.type)) continue;
+
+      // Try to match by elementId first, then by tableNumber
+      let booking = byId.get(el.id);
+      if (!booking && el.metadata.tableNumber != null) {
+        booking = byTableNum.get(el.metadata.tableNumber as number);
+      }
+
+      if (booking) {
+        el.metadata.status = booking.status;
+        el.metadata.customerName = booking.customerName || '';
+        el.metadata.bookingStart = booking.bookingStart || '';
+        el.metadata.bookingEnd = booking.bookingEnd || '';
+        el.metadata.reservationId = booking.reservationId || '';
+      } else {
+        // Reset to available
+        el.metadata.status = 'available';
+        el.metadata.customerName = '';
+        el.metadata.bookingStart = '';
+        el.metadata.bookingEnd = '';
+        el.metadata.reservationId = '';
+      }
+    }
+
+    this.markDirty();
+  }
+
+  /**
+   * Update a single element's booking state. Convenience wrapper around
+   * `updateElement` that only touches booking-related metadata keys.
+   */
+  setBooking(
+    elementId: string,
+    booking: {
+      status: 'available' | 'reserved' | 'occupied' | 'blocked';
+      customerName?: string;
+      bookingStart?: string;
+      bookingEnd?: string;
+      reservationId?: string;
+    },
+  ): void {
+    const el = this.elementManager.get(elementId);
+    if (!el) return;
+    el.metadata.status = booking.status;
+    el.metadata.customerName = booking.customerName ?? '';
+    el.metadata.bookingStart = booking.bookingStart ?? '';
+    el.metadata.bookingEnd = booking.bookingEnd ?? '';
+    el.metadata.reservationId = booking.reservationId ?? '';
+    this.emitter.emit('elementUpdated', {
+      element: el.toData(),
+      changes: { metadata: el.metadata },
+    });
+    this.markDirty();
+  }
+
   // === Private Methods ===
 
   private loadFloorIntoCanvas(floor: FloorData): void {

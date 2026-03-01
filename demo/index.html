@@ -1096,10 +1096,10 @@
 
   // ── Seed sample elements ───────────────────────────────────────────────
   builder.addElement({ type: 'table', x: 120, y: 120, width: 100, height: 70, metadata: { shape: 'rectangle', tableNumber: 1, capacity: 4, status: 'available' } });
-  builder.addElement({ type: 'table', x: 300, y: 120, width: 80, height: 80, metadata: { shape: 'round', tableNumber: 2, capacity: 6, status: 'reserved' } });
-  builder.addElement({ type: 'table', x: 480, y: 120, width: 100, height: 70, metadata: { shape: 'rectangle', tableNumber: 3, capacity: 4, status: 'occupied' } });
+  builder.addElement({ type: 'table', x: 300, y: 120, width: 80, height: 80, metadata: { shape: 'round', tableNumber: 2, capacity: 6, status: 'reserved', customerName: 'Sarah M.', bookingStart: '19:00', bookingEnd: '21:00' } });
+  builder.addElement({ type: 'table', x: 480, y: 120, width: 100, height: 70, metadata: { shape: 'rectangle', tableNumber: 3, capacity: 4, status: 'occupied', customerName: 'John D.', bookingStart: '18:30', bookingEnd: '20:30' } });
   builder.addElement({ type: 'table', x: 660, y: 120, width: 80, height: 80, metadata: { shape: 'round', tableNumber: 4, capacity: 8, status: 'blocked' } });
-  builder.addElement({ type: 'table', x: 200, y: 320, width: 120, height: 80, metadata: { shape: 'rectangle', tableNumber: 5, capacity: 8, status: 'available' } });
+  builder.addElement({ type: 'table', x: 200, y: 320, width: 120, height: 80, metadata: { shape: 'rectangle', tableNumber: 5, capacity: 8, status: 'reserved', customerName: 'Emily R.', bookingStart: '20:00', bookingEnd: '22:00' } });
   builder.addElement({ type: 'table', x: 500, y: 340, width: 90, height: 90, metadata: { shape: 'round', tableNumber: 6, capacity: 6, status: 'available' } });
 
   // Chairs — positioned to align with Table 1 (x:120, y:120, w:100, h:70)
@@ -1971,6 +1971,24 @@
         </div>
         <div class="prop-row"><span class="prop-label">Current</span>${getStatusBadgeHTML(meta.status || 'available')}</div>
         <div class="prop-row"><span class="prop-label">Label</span><input class="prop-input" type="text" data-meta="label" value="${meta.label ?? ''}" placeholder="Optional label" /></div>
+      </div>`;
+
+      html += `<div class="prop-group">
+        <div class="prop-group-title">Booking</div>
+        <div class="prop-row"><span class="prop-label">Customer</span><input class="prop-input" type="text" data-meta="customerName" value="${meta.customerName ?? ''}" placeholder="Customer name" /></div>
+        <div class="prop-row"><span class="prop-label">From</span><input class="prop-input" type="text" data-meta="bookingStart" value="${meta.bookingStart ?? ''}" placeholder="e.g. 18:00" /></div>
+        <div class="prop-row"><span class="prop-label">To</span><input class="prop-input" type="text" data-meta="bookingEnd" value="${meta.bookingEnd ?? ''}" placeholder="e.g. 20:00" /></div>
+        <div class="prop-row"><span class="prop-label">Res. ID</span><input class="prop-input" type="text" data-meta="reservationId" value="${meta.reservationId ?? ''}" placeholder="Reservation ID" /></div>
+      </div>`;
+    }
+
+    // Booth-specific props
+    if (el.type === 'booth') {
+      html += `<div class="prop-group">
+        <div class="prop-group-title">Booking</div>
+        <div class="prop-row"><span class="prop-label">Customer</span><input class="prop-input" type="text" data-meta="customerName" value="${meta.customerName ?? ''}" placeholder="Customer name" /></div>
+        <div class="prop-row"><span class="prop-label">From</span><input class="prop-input" type="text" data-meta="bookingStart" value="${meta.bookingStart ?? ''}" placeholder="e.g. 18:00" /></div>
+        <div class="prop-row"><span class="prop-label">To</span><input class="prop-input" type="text" data-meta="bookingEnd" value="${meta.bookingEnd ?? ''}" placeholder="e.g. 20:00" /></div>
       </div>`;
     }
 

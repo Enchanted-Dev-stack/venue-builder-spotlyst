@@ -1,4 +1,4 @@
-import { ElementData, ElementType } from '../core/types';
+import { ElementData, ElementType, BookingStatus } from '../core/types';
 import { COLORS } from '../theme/colors';
 import { FONT_FAMILY } from '../utils/constants';
 import { pointInRect } from '../utils/math';
@@ -25,9 +25,18 @@ export class BoothElement extends BaseElement {
       metadata: {
         label: 'Booth',
         capacity: 4,
+        status: 'available' as BookingStatus,
         ...data.metadata,
       },
     });
+  }
+
+  private getStatusColors(): { fill: string; stroke: string } | null {
+    const status = this.metadata.status as BookingStatus | undefined;
+    if (status && status !== 'available' && status in COLORS.status) {
+      return COLORS.status[status as keyof typeof COLORS.status];
+    }
+    return null;
   }
 
   draw(ctx: CanvasRenderingContext2D, isSelected: boolean, isHovered: boolean): void {
@@ -38,6 +47,15 @@ export class BoothElement extends BaseElement {
       const armWidth = Math.min(14, width * 0.14);
       const backHeight = Math.min(14, height * 0.2);
 
+      const statusColors = this.getStatusColors();
+      const fillColor = statusColors?.fill ?? COLORS.elements.boothFill;
+      const strokeColor = statusColors?.stroke ?? COLORS.elements.boothStroke;
+      const isBlocked = this.metadata.status === 'blocked';
+
+      if (isBlocked) {
+        ctx.globalAlpha = 0.45;
+      }
+
       // Shadow
       ctx.save();
       ctx.shadowColor = SHADOW_COLOR;
@@ -46,14 +64,14 @@ export class BoothElement extends BaseElement {
       ctx.shadowOffsetY = SHADOW_OFFSET_Y;
 
       // Outer frame (the full rectangle for the booth footprint)
-      ctx.fillStyle = COLORS.elements.boothFill;
+      ctx.fillStyle = fillColor;
       ctx.beginPath();
       ctx.roundRect(x, y, width, height, CORNER_RADIUS);
       ctx.fill();
       ctx.restore();
 
       // Stroke
-      ctx.strokeStyle = COLORS.elements.boothStroke;
+      ctx.strokeStyle = strokeColor;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.roundRect(x, y, width, height, CORNER_RADIUS);
@@ -94,20 +112,43 @@ export class BoothElement extends BaseElement {
       ctx.globalAlpha = 1;
 
       // Label
-      const label = this.metadata.label || 'Booth';
+      const customerName = this.metadata.customerName as string | undefined;
+      const hasCustomer = customerName && customerName.trim().length > 0;
+      const label = hasCustomer ? customerName! : (this.metadata.label || 'Booth');
       const fontSize = Math.min(11, Math.min(width, height) * 0.2);
       ctx.fillStyle = COLORS.text.body;
       ctx.font = `500 ${fontSize}px ${FONT_FAMILY}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(label, cx, cy - 4);
 
-      // Capacity
-      if (this.metadata.capacity) {
+      const maxLen = Math.floor((width - 16) / 6);
+      const displayLabel = label.length > maxLen ? label.substring(0, maxLen - 1) + '…' : label;
+      ctx.fillText(displayLabel, cx, cy - 4);
+
+      // Capacity (shown only when no customer)
+      if (this.metadata.capacity && !hasCustomer) {
         const subSize = Math.min(9, fontSize * 0.8);
         ctx.fillStyle = COLORS.text.caption;
         ctx.font = `400 ${subSize}px ${FONT_FAMILY}`;
         ctx.fillText(`seats ${this.metadata.capacity}`, cx, cy + subSize + 1);
+      }
+
+      // Booking time slot
+      const bookingStart = this.metadata.bookingStart as string | undefined;
+      const bookingEnd = this.metadata.bookingEnd as string | undefined;
+      if (bookingStart && hasCustomer) {
+        const timeStr = bookingEnd ? `${bookingStart}–${bookingEnd}` : bookingStart;
+        const timeSize = Math.min(8, Math.min(width, height) * 0.14);
+        ctx.fillStyle = COLORS.text.light;
+        ctx.font = `400 ${timeSize}px ${FONT_FAMILY}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(timeStr, cx, cy + fontSize * 0.6 + 2);
+      }
+
+      // Reset alpha before selection outline
+      if (isBlocked) {
+        ctx.globalAlpha = 1;
       }
 
       // Selection / hover outline

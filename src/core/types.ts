@@ -28,6 +28,9 @@ export interface TableData extends ElementData {
     capacity?: number;
     status: BookingStatus;
     label?: string;
+    customerName?: string;
+    bookingStart?: string;
+    bookingEnd?: string;
     reservationId?: string;
     timeSlot?: string;
     [key: string]: any;
@@ -75,6 +78,9 @@ export interface GroupData {
     capacity?: number;
     status: BookingStatus;
     label?: string;
+    customerName?: string;
+    bookingStart?: string;
+    bookingEnd?: string;
     reservationId?: string;
     timeSlot?: string;
     [key: string]: any;
